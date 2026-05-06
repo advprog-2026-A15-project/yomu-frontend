@@ -1,8 +1,10 @@
-const API_URL = 'http://localhost:8080/api';
+import { parseApiErrorResponse } from "./errorHandler";
+
+const API_URL = "http://localhost:8080/api";
 
 export const getAuthHeaders = () => {
-  const storedUser = localStorage.getItem('yomu_user');
-  const baseHeaders = { 'Content-Type': 'application/json' };
+  const storedUser = localStorage.getItem("yomu_user");
+  const baseHeaders = { "Content-Type": "application/json" };
   if (!storedUser) return baseHeaders;
   try {
     const user = JSON.parse(storedUser);
@@ -16,8 +18,12 @@ export const getAuthHeaders = () => {
 
 export const readJsonOrThrow = async (response, fallbackMessage) => {
   if (response.ok) return response.json();
-  const errorData = await response.json().catch(() => null);
-  throw new Error(errorData?.message || fallbackMessage);
+  const errorData = await parseApiErrorResponse(response);
+  const message = errorData.message || fallbackMessage;
+  const error = new Error(message);
+  error.status = errorData.status;
+  error.errorCode = errorData.errorCode;
+  throw error;
 };
 
 export default API_URL;
