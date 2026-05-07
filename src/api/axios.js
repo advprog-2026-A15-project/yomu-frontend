@@ -1,6 +1,10 @@
 import { parseApiErrorResponse } from "./errorHandler";
 
-const API_URL = "http://localhost:8080/api";
+const DEFAULT_API_URL = "http://localhost:8080/api";
+
+const normalizeApiUrl = (value) => value?.replace(/\/$/, "") || DEFAULT_API_URL;
+
+export const API_URL = normalizeApiUrl(import.meta.env.VITE_API_BASE_URL);
 
 export const getAuthHeaders = () => {
   const storedUser = localStorage.getItem("yomu_user");

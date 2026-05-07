@@ -1,9 +1,11 @@
-const API_URL = 'http://localhost:8080/api/achievements';
+import { API_URL } from "../../../api/axios";
+
+const ACHIEVEMENTS_API_URL = `${API_URL}/achievements`;
 
 const getAuthHeaders = () => {
-  const storedUser = localStorage.getItem('yomu_user');
+  const storedUser = localStorage.getItem("yomu_user");
   const baseHeaders = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
 
   if (!storedUser) {
@@ -31,50 +33,59 @@ const readJsonOrThrow = async (response, fallbackMessage) => {
 
 export const achievementService = {
   listAchievements: async (userId) => {
-    const response = await fetch(`${API_URL}?userId=${encodeURIComponent(userId)}`, {
-      headers: getAuthHeaders(),
-    });
-
-    return readJsonOrThrow(response, 'Gagal memuat achievement.');
-  },
-
-  listDailyMissions: async (userId) => {
-    const response = await fetch(`${API_URL}/daily-missions/active?userId=${encodeURIComponent(userId)}`, {
-      headers: getAuthHeaders(),
-    });
-
-    return readJsonOrThrow(response, 'Gagal memuat daily mission.');
-  },
-
-  claimDailyMissionReward: async (missionId, userId) => {
     const response = await fetch(
-      `${API_URL}/daily-missions/${encodeURIComponent(missionId)}/claim?userId=${encodeURIComponent(userId)}`,
+      `${ACHIEVEMENTS_API_URL}?userId=${encodeURIComponent(userId)}`,
       {
-        method: 'POST',
         headers: getAuthHeaders(),
       },
     );
 
-    return readJsonOrThrow(response, 'Gagal klaim reward.');
+    return readJsonOrThrow(response, "Gagal memuat achievement.");
+  },
+
+  listDailyMissions: async (userId) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/daily-missions/active?userId=${encodeURIComponent(userId)}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+
+    return readJsonOrThrow(response, "Gagal memuat daily mission.");
+  },
+
+  claimDailyMissionReward: async (missionId, userId) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/daily-missions/${encodeURIComponent(missionId)}/claim?userId=${encodeURIComponent(userId)}`,
+      {
+        method: "POST",
+        headers: getAuthHeaders(),
+      },
+    );
+
+    return readJsonOrThrow(response, "Gagal klaim reward.");
   },
 
   createAchievement: async (payload) => {
-    const response = await fetch(`${API_URL}/admin`, {
-      method: 'POST',
+    const response = await fetch(`${ACHIEVEMENTS_API_URL}/admin`, {
+      method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 
-    return readJsonOrThrow(response, 'Gagal membuat achievement.');
+    return readJsonOrThrow(response, "Gagal membuat achievement.");
   },
 
   createDailyMission: async (payload) => {
-    const response = await fetch(`${API_URL}/admin/daily-missions`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(payload),
-    });
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/admin/daily-missions`,
+      {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      },
+    );
 
-    return readJsonOrThrow(response, 'Gagal membuat daily mission.');
+    return readJsonOrThrow(response, "Gagal membuat daily mission.");
   },
 };
