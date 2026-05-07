@@ -44,4 +44,12 @@ export const forumService = {
     });
     return readJsonOrThrow(res, "Gagal menghapus komentar.");
   },
+  addReaction: async (commentId, reactionType) => {
+    const res = await fetch(`${FORUM_API_URL}/${commentId}/reactions`, {
+      method: "POST",
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ reactionType }),
+    });
+    return readJsonOrThrow(res, "Gagal memberikan reaksi pada komentar.");
+  },
 };
