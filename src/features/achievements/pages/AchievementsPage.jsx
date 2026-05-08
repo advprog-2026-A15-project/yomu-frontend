@@ -20,6 +20,9 @@ const metricLabels = {
   READING_COMPLETED: 'Bacaan',
   QUIZ_COMPLETED: 'Kuis',
   LEAGUE_ACTIVITY: 'Liga',
+  COMMENT_CREATED: 'Diskusi',
+  CLAN_PROMOTED: 'Promosi Clan',
+  CLAN_REACHED_DIAMOND: 'Diamond',
 };
 
 const formatDate = (value) => {
@@ -263,7 +266,15 @@ export const AchievementsPage = () => {
         <div className="achievement-section-heading">
           <h2>Daftar Achievement</h2>
           <div className="achievement-filter" aria-label="Filter achievement">
-            {['ALL', 'READING_COMPLETED', 'QUIZ_COMPLETED', 'LEAGUE_ACTIVITY'].map((metric) => (
+            {[
+              'ALL',
+              'READING_COMPLETED',
+              'QUIZ_COMPLETED',
+              'LEAGUE_ACTIVITY',
+              'COMMENT_CREATED',
+              'CLAN_PROMOTED',
+              'CLAN_REACHED_DIAMOND',
+            ].map((metric) => (
               <button
                 key={metric}
                 type="button"

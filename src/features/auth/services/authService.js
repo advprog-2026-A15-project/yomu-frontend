@@ -24,80 +24,115 @@ const getAuthHeaders = () => {
 
 export const authService = {
   login: async (identifier, password) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier, password }),
-    });
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(
-        errorData?.message || "Gagal login. Periksa username dan password.",
-      );
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || "Gagal login. Periksa username dan password.",
+        );
+      }
+
+      const data = await response.json();
+      return {
+        token: data.token,
+        ...data.user,
+      };
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(
+          "Gagal menghubungi server. Pastikan API gateway (`http://localhost:8080`) atau backend service berjalan.",
+        );
+      }
+      throw err;
     }
-
-    const data = await response.json();
-    // data contains { token: "...", user: { id, username, ... } }
-    return {
-      token: data.token,
-      ...data.user,
-    };
   },
 
   register: async (userData) => {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(
-        errorData?.message ||
-          "Pendaftaran gagal. Pastikan data valid atau email/username belum terpakai.",
-      );
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message ||
+            "Pendaftaran gagal. Pastikan data valid atau email/username belum terpakai.",
+        );
+      }
+
+      const data = await response.json();
+      return {
+        token: data.token,
+        ...data.user,
+      };
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(
+          "Gagal menghubungi server. Pastikan API gateway atau backend service berjalan.",
+        );
+      }
+      throw err;
     }
-
-    const data = await response.json();
-    return {
-      token: data.token,
-      ...data.user,
-    };
   },
 
   updateProfile: async (updateData) => {
-    const response = await fetch(`${API_URL}/auth/profile`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-      body: JSON.stringify(updateData),
-    });
+    try {
+      const response = await fetch(`${API_URL}/auth/profile`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updateData),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || "Gagal memperbarui profil.");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || "Gagal memperbarui profil.");
+      }
+
+      const data = await response.json();
+      return {
+        token: data.token,
+        ...data.user,
+      };
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(
+          "Gagal menghubungi server. Pastikan API gateway atau backend service berjalan.",
+        );
+      }
+      throw err;
     }
-
-    const data = await response.json();
-    return {
-      token: data.token,
-      ...data.user,
-    };
   },
 
   deleteAccount: async () => {
-    const response = await fetch(`${API_URL}/auth/profile`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-    });
+    try {
+      const response = await fetch(`${API_URL}/auth/profile`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || "Gagal menghapus akun.");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || "Gagal menghapus akun.");
+      }
+
+      return true;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(
+          "Gagal menghubungi server. Pastikan API gateway atau backend service berjalan.",
+        );
+      }
+      throw err;
     }
-
-    return true;
   },
 
   googleLogin: async () => {
@@ -109,20 +144,29 @@ export const authService = {
       displayName: "Google User",
     };
 
-    const response = await fetch(`${API_URL}/auth/google`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mockGoogleData),
-    });
+    try {
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mockGoogleData),
+      });
 
-    if (!response.ok) {
-      throw new Error("Gagal login dengan Google.");
+      if (!response.ok) {
+        throw new Error("Gagal login dengan Google.");
+      }
+
+      const data = await response.json();
+      return {
+        token: data.token,
+        ...data.user,
+      };
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(
+          "Gagal menghubungi server. Pastikan API gateway atau backend service berjalan.",
+        );
+      }
+      throw err;
     }
-
-    const data = await response.json();
-    return {
-      token: data.token,
-      ...data.user,
-    };
   },
 };

@@ -9,6 +9,9 @@ const metricOptions = [
   { value: 'READING_COMPLETED', label: 'Bacaan' },
   { value: 'QUIZ_COMPLETED', label: 'Kuis' },
   { value: 'LEAGUE_ACTIVITY', label: 'Liga' },
+  { value: 'COMMENT_CREATED', label: 'Diskusi' },
+  { value: 'CLAN_PROMOTED', label: 'Promosi Clan' },
+  { value: 'CLAN_REACHED_DIAMOND', label: 'Diamond Clan' },
 ];
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
