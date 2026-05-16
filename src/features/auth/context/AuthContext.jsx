@@ -58,11 +58,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const googleLogin = async () => {
+  const googleLogin = async (accessToken) => {
     setIsLoading(true);
     setError(null);
     try {
-      const userData = await authService.googleLogin();
+      const userData = await authService.googleLogin(accessToken);
       saveSession(userData);
       return userData;
     } catch (err) {
