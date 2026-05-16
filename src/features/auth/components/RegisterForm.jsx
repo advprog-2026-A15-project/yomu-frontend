@@ -39,7 +39,7 @@ export const RegisterForm = () => {
       const submitData = { ...formData };
       delete submitData.confirmPassword;
       await register(submitData);
-      navigate('/profile');
+      navigate('/');
     } catch {
       // Error handled by context
     }

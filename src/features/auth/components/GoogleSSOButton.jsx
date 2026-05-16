@@ -14,7 +14,7 @@ export const GoogleSSOButton = ({ isLogin = true }) => {
     setError(null);
     try {
       await googleLogin();
-      navigate('/profile'); // Redirect after successful login
+      navigate('/'); // Redirect after successful login
     } catch (err) {
       setError(err.message || 'Gagal login dengan Google');
     } finally {
