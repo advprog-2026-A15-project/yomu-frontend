@@ -3,7 +3,18 @@ import { forumService } from "../services/forumService";
 import "../styles/forum.css";
 import { useToast } from "../../../components/Toast";
 
+const decodeHtmlEntities = (value = "") => {
+  if (typeof document === "undefined") return value;
+
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = value;
+  return textarea.value;
+};
+
 export const CommentItem = ({ comment, onUpdate }) => {
+  const displayContent = decodeHtmlEntities(
+    comment.commentContent || comment.content || "",
+  );
   const [counts, setCounts] = useState({
     upvotes: comment.upvotes ?? 0,
     downvotes: comment.downvotes ?? 0,
@@ -96,8 +107,11 @@ export const CommentItem = ({ comment, onUpdate }) => {
         </div>
       </div>
 
-      <div className="comment-body" style={{ marginBottom: 12 }}>
-        {comment.commentContent || comment.content}
+      <div
+        className="comment-body"
+        style={{ marginBottom: 12, whiteSpace: "pre-wrap" }}
+      >
+        {displayContent}
       </div>
 
       <div className="comment-actions">
