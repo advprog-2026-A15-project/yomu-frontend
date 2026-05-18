@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export const GoogleSSOButton = ({ isLogin = true }) => {
   const { googleLogin } = useAuth();
@@ -9,18 +10,23 @@ export const GoogleSSOButton = ({ isLogin = true }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await googleLogin();
-      navigate('/profile'); // Redirect after successful login
-    } catch (err) {
-      setError(err.message || 'Gagal login dengan Google');
-    } finally {
-      setIsLoading(false);
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        await googleLogin(tokenResponse.access_token);
+        navigate('/'); // Redirect after successful login
+      } catch (err) {
+        setError(err.message || 'Gagal login dengan Google');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      setError('Gagal menghubungkan ke akun Google');
     }
-  };
+  });
 
   return (
     <>

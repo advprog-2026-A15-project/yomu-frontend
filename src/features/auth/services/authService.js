@@ -162,24 +162,25 @@ export const authService = {
     }
   },
 
-  googleLogin: async () => {
-    // This is a simplified mock of Google SSO flow to match the prompt's simplicity.
-    // In a real application, you'd use Google's client SDK to get a token and send it.
-    const mockGoogleData = {
-      email: "user" + Math.floor(Math.random() * 1000) + "@gmail.com",
-      username: "google_user_" + Math.floor(Math.random() * 1000),
-      displayName: "Google User",
-    };
-
+  googleLogin: async (accessToken) => {
     try {
       const response = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mockGoogleData),
+        body: JSON.stringify({ accessToken }),
       });
 
       if (!response.ok) {
-        throw new Error("Gagal login dengan Google.");
+        let errorMessage = "Gagal login dengan Google.";
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // Fallback to default message
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

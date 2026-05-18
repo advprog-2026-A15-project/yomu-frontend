@@ -223,4 +223,18 @@ describe("CommentItem", () => {
 
     expect(screen.getByText("Alternative field name")).toBeInTheDocument();
   });
+
+  it("should render escaped comment content as plain text", () => {
+    const escapedComment = {
+      ...mockComment,
+      commentContent: "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+    };
+
+    renderWithToast(<CommentItem comment={escapedComment} />);
+
+    expect(
+      screen.getByText("<script>alert('xss')</script>"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
 });

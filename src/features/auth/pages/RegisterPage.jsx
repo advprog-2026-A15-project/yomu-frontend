@@ -9,7 +9,7 @@ export const RegisterPage = () => {
 
   // If already logged in, redirect to profile or dashboard
   if (user && !isLoading) {
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (
