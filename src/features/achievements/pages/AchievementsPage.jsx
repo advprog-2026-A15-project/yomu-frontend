@@ -134,6 +134,17 @@ export const AchievementsPage = () => {
     };
   }, [achievements, dailyMissions]);
 
+  const handlePin = async (achievementId) => {
+    if (!userId) return;
+    try {
+      await achievementService.pinAchievement(achievementId, userId);
+      setSuccessMessage('Achievement berhasil di-pin.');
+      await loadDashboard();
+    } catch (pinError) {
+      setError(pinError.message);
+    }
+  };
+
   const handleClaim = async (missionId) => {
     if (!userId) {
       return;
@@ -318,6 +329,16 @@ export const AchievementsPage = () => {
                     <div className="achievement-card-meta">
                       <span>{achievement.progress}/{achievement.milestone}</span>
                       <span>{achievement.unlocked ? formatDate(achievement.unlockedAt) : 'Terkunci'}</span>
+                      {achievement.unlocked && (
+                        <button
+                          type="button"
+                          onClick={() => handlePin(achievement.achievementId)}
+                          title={achievement.pinned ? 'Di-pin' : 'Pin achievement ini'}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, opacity: achievement.pinned ? 1 : 0.4 }}
+                        >
+                          📌
+                        </button>
+                      )}
                     </div>
                   </div>
                 </article>

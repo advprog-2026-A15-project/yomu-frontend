@@ -1,6 +1,6 @@
 import { parseApiErrorResponse } from "./errorHandler";
 
-const DEFAULT_API_URL = "http://localhost:8080/api";
+const DEFAULT_API_URL = "/api";
 
 const normalizeApiUrl = (value) => value?.replace(/\/$/, "") || DEFAULT_API_URL;
 

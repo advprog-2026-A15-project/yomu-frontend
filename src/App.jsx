@@ -6,7 +6,9 @@ import {
 } from "./features/achievements";
 import { LearningPage } from "./features/learning/pages/LearningPage";
 import { BacaanDetailPage } from "./features/learning/pages/BacaanDetailPage";
+import { LearningAdminPage } from "./features/learning/pages/LearningAdminPage";
 import { ClanPage } from "./features/clan/pages/ClanPage";
+import { ClanManagePage } from "./features/clan/pages/ClanManagePage";
 import { Navbar } from "./components/Navbar";
 
 function Home() {
@@ -90,9 +92,11 @@ function App() {
             />
 
             <Route path="/learning" element={<LearningPage />} />
+            <Route path="/learning/admin" element={<LearningAdminPage />} />
             <Route path="/learning/:id" element={<BacaanDetailPage />} />
 
             <Route path="/clan" element={<ClanPage />} />
+            <Route path="/clan/:clanId/manage" element={<ClanManagePage />} />
           </Routes>
         </main>
       </div>

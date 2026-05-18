@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
 import { AuthContext } from './AuthContextValue';
 
@@ -27,6 +27,25 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('yomu_user');
   };
+
+  useEffect(() => {
+    const refreshStoredSession = async () => {
+      const storedUser = getStoredUser();
+      if (!storedUser?.refreshToken || !storedUser?.expiresAt) return;
+
+      const expiresSoon = Date.parse(storedUser.expiresAt) - Date.now() < 60_000;
+      if (!expiresSoon) return;
+
+      try {
+        const refreshedUser = await authService.refreshSession(storedUser.refreshToken);
+        saveSession(refreshedUser);
+      } catch {
+        clearSession();
+      }
+    };
+
+    refreshStoredSession();
+  }, []);
 
   const login = async (identifier, password) => {
     setIsLoading(true);

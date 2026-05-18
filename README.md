@@ -9,10 +9,11 @@ The frontend reads its API base URL from `VITE_API_BASE_URL`.
 Default:
 
 ```bash
-VITE_API_BASE_URL=http://localhost:8080/api
+VITE_API_BASE_URL=/api
 ```
 
-Set it in a local `.env` file when the gateway is exposed through a different host or port.
+The Vite dev server proxies `/api` to the gateway on `http://localhost:8090`.
+Set a full URL in a local `.env` file only when the gateway is exposed through a different host or port.
 
 Currently, two official plugins are available:
 

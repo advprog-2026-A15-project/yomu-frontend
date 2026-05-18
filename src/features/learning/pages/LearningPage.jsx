@@ -27,8 +27,17 @@ export const LearningPage = () => {
 
   return (
     <div className="page-container">
-      <h1 className="page-title">Modul Belajar</h1>
-      <p className="page-subtitle">Pilih artikel untuk mulai membaca dan raih skor kuis tertinggi!</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+        <div>
+          <h1 className="page-title" style={{ marginBottom: 4 }}>Modul Belajar</h1>
+          <p className="page-subtitle" style={{ margin: 0 }}>Pilih artikel untuk mulai membaca dan raih skor kuis tertinggi!</p>
+        </div>
+        {user?.role === 'ADMIN' && (
+          <Link to="/learning/admin" className="btn btn-secondary" style={{ fontSize: 13, padding: '8px 16px', whiteSpace: 'nowrap' }}>
+            + KELOLA KONTEN
+          </Link>
+        )}
+      </div>
 
       {bacaanList.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', color: 'var(--text-light)' }}>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { clanService } from '../services/clanService';
 import { useAuth } from '../../auth/hooks/useAuth';
 
@@ -11,10 +12,30 @@ export const ClanPage = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [newClanName, setNewClanName] = useState('');
   const [newClanDesc, setNewClanDesc] = useState('');
+  const [membership, setMembership] = useState(undefined); // undefined=loading, null=none
+  const [myClan, setMyClan] = useState(null);
 
   useEffect(() => {
     loadLeaderboard();
   }, [tierFilter]);
+
+  useEffect(() => {
+    if (!user) return;
+    loadMembership();
+  }, [user]);
+
+  const loadMembership = async () => {
+    try {
+      const m = await clanService.getMembership(user.id);
+      setMembership(m);
+      if (m) {
+        const clan = await clanService.getClan(m.clanId);
+        setMyClan(clan);
+      }
+    } catch {
+      setMembership(null);
+    }
+  };
 
   const loadLeaderboard = async () => {
     try {
@@ -76,6 +97,32 @@ export const ClanPage = () => {
           {showCreate ? 'BATAL' : '+ BUAT CLAN'}
         </button>
       </div>
+
+      {/* Banner status keanggotaan */}
+      {membership && myClan && (
+        <div className="card" style={{
+          marginBottom: '24px',
+          backgroundColor: membership.status === 'ACCEPTED' ? '#f0fff4' : '#fffbeb',
+          borderColor: membership.status === 'ACCEPTED' ? '#58cc02' : '#f59e0b',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>
+              {membership.status === 'ACCEPTED' ? '✓ Anggota' : '⏳ Menunggu Persetujuan'}
+            </div>
+            <div style={{ color: 'var(--text-light)', fontSize: '14px' }}>
+              {membership.status === 'ACCEPTED'
+                ? `Kamu anggota clan ${myClan.name} · Skor: ${membership.personalScore ?? 0}`
+                : `Permintaanmu bergabung ke clan "${myClan.name}" sedang menunggu persetujuan ketua.`}
+            </div>
+          </div>
+          {membership.status === 'ACCEPTED' && myClan.leaderId === user?.id && (
+            <Link to={`/clan/${myClan.id}/manage`} className="btn btn-secondary" style={{ fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap' }}>
+              KELOLA CLAN
+            </Link>
+          )}
+        </div>
+      )}
 
       {showCreate && (
         <form onSubmit={handleCreateClan} className="card" style={{ marginBottom: '32px', backgroundColor: '#f0f9ff', borderColor: 'var(--secondary)' }}>
@@ -152,9 +199,31 @@ export const ClanPage = () => {
                     {clan.totalScore.toLocaleString()}
                   </td>
                   <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                    <button onClick={() => handleJoinClan(clan.id)} className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '12px' }}>
-                      GABUNG
-                    </button>
+                    {clan.leaderId === user?.id ? (
+                      <Link
+                        to={`/clan/${clan.id}/manage`}
+                        className="btn btn-secondary"
+                        style={{ padding: '8px 16px', fontSize: '12px' }}
+                      >
+                        KELOLA
+                      </Link>
+                    ) : membership?.clanId === clan.id ? (
+                      <span style={{
+                        padding: '8px 16px', fontSize: '12px', fontWeight: 'bold',
+                        color: membership.status === 'ACCEPTED' ? 'var(--primary)' : '#f59e0b',
+                      }}>
+                        {membership.status === 'ACCEPTED' ? '✓ BERGABUNG' : '⏳ MENUNGGU'}
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleJoinClan(clan.id)}
+                        disabled={!!membership}
+                        className="btn btn-outline"
+                        style={{ padding: '8px 16px', fontSize: '12px', opacity: membership ? 0.4 : 1, cursor: membership ? 'not-allowed' : 'pointer' }}
+                      >
+                        GABUNG
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

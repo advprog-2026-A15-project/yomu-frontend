@@ -76,6 +76,14 @@ export const achievementService = {
     return readJsonOrThrow(response, "Gagal membuat achievement.");
   },
 
+  pinAchievement: async (achievementId, userId) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/${encodeURIComponent(achievementId)}/pin?userId=${encodeURIComponent(userId)}`,
+      { method: "PUT", headers: getAuthHeaders() },
+    );
+    return readJsonOrThrow(response, "Gagal pin achievement.");
+  },
+
   createDailyMission: async (payload) => {
     const response = await fetch(
       `${ACHIEVEMENTS_API_URL}/admin/daily-missions`,

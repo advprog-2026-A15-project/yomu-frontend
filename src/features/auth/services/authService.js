@@ -23,6 +23,27 @@ const getAuthHeaders = () => {
 };
 
 export const authService = {
+  refreshSession: async (refreshToken) => {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Sesi login sudah berakhir.");
+    }
+
+    const data = await response.json();
+    return {
+      token: data.token,
+      refreshToken: data.refreshToken,
+      expiresAt: data.expiresAt,
+      ...data.user,
+    };
+  },
+
   login: async (identifier, password) => {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -41,12 +62,14 @@ export const authService = {
       const data = await response.json();
       return {
         token: data.token,
+        refreshToken: data.refreshToken,
+        expiresAt: data.expiresAt,
         ...data.user,
       };
     } catch (err) {
       if (err instanceof TypeError) {
         throw new Error(
-          "Gagal menghubungi server. Pastikan API gateway (`http://localhost:8080`) atau backend service berjalan.",
+          "Gagal menghubungi server. Pastikan API gateway (`http://localhost:8090`) atau backend service berjalan.",
         );
       }
       throw err;
@@ -72,6 +95,8 @@ export const authService = {
       const data = await response.json();
       return {
         token: data.token,
+        refreshToken: data.refreshToken,
+        expiresAt: data.expiresAt,
         ...data.user,
       };
     } catch (err) {
@@ -100,6 +125,8 @@ export const authService = {
       const data = await response.json();
       return {
         token: data.token,
+        refreshToken: data.refreshToken,
+        expiresAt: data.expiresAt,
         ...data.user,
       };
     } catch (err) {
@@ -158,6 +185,8 @@ export const authService = {
       const data = await response.json();
       return {
         token: data.token,
+        refreshToken: data.refreshToken,
+        expiresAt: data.expiresAt,
         ...data.user,
       };
     } catch (err) {

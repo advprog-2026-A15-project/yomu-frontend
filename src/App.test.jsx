@@ -3,13 +3,16 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 
 import App from './App'
+import { AuthProvider } from './features/auth/context/AuthContext'
 
 describe('App', () => {
   it('renders the onboarding heading', () => {
     expect(renderToString(
       <MemoryRouter>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </MemoryRouter>,
-    )).toContain('Selamat Datang di Yomu')
+    )).toContain('Tingkatkan literasimu, mulai hari ini.')
   })
 })

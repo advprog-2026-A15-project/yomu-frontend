@@ -32,7 +32,7 @@ export const clanService = {
       method: "POST",
       headers: getAuthHeaders(),
     });
-    if (!res.ok) throw new Error("Gagal bergabung clan.");
+    if (!res.ok) await readJsonOrThrow(res, "Gagal bergabung clan.");
     return true;
   },
 
@@ -41,6 +41,48 @@ export const clanService = {
       headers: getAuthHeaders(),
     });
     return readJsonOrThrow(res, "Gagal memuat anggota.");
+  },
+
+  getMembership: async (userId) => {
+    const res = await fetch(`${CLAN_API_URL}/me?userId=${userId}`, {
+      headers: getAuthHeaders(),
+    });
+    if (res.status === 204) return null;
+    return readJsonOrThrow(res, "Gagal memuat status keanggotaan.");
+  },
+
+  getPendingMembers: async (clanId) => {
+    const res = await fetch(`${CLAN_API_URL}/${clanId}/members/pending`, {
+      headers: getAuthHeaders(),
+    });
+    return readJsonOrThrow(res, "Gagal memuat anggota pending.");
+  },
+
+  acceptMember: async (clanId, memberId) => {
+    const res = await fetch(`${CLAN_API_URL}/${clanId}/members/${memberId}/accept`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) await readJsonOrThrow(res, "Gagal menerima anggota.");
+    return true;
+  },
+
+  rejectMember: async (clanId, memberId) => {
+    const res = await fetch(`${CLAN_API_URL}/${clanId}/members/${memberId}/reject`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) await readJsonOrThrow(res, "Gagal menolak anggota.");
+    return true;
+  },
+
+  deleteClan: async (clanId) => {
+    const res = await fetch(`${CLAN_API_URL}/${clanId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) await readJsonOrThrow(res, "Gagal menghapus clan.");
+    return true;
   },
 
   endSeason: async () => {

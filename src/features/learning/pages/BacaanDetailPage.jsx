@@ -58,12 +58,38 @@ export const BacaanDetailPage = () => {
     }
   };
 
+  const [newComment, setNewComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+
   const handleCommentUpdate = (updated) => {
     setComments((prev) =>
       prev.map((c) =>
         c.commentId === updated.commentId || c.id === updated.id ? updated : c,
       ),
     );
+  };
+
+  const handleCommentDelete = (commentId) => {
+    setComments((prev) => prev.filter((c) => (c.commentId || c.id) !== commentId));
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    setSubmittingComment(true);
+    try {
+      const created = await forumService.createComment({
+        bacaanId: id,
+        userId: user.id,
+        commentContent: newComment.trim(),
+      });
+      setComments((prev) => [...prev, created]);
+      setNewComment('');
+    } catch (err) {
+      toast(err.message || 'Gagal mengirim komentar.', 'error');
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   const handleSelectOption = (questionId, optionKey) => {
@@ -156,6 +182,25 @@ export const BacaanDetailPage = () => {
       {/* Comments Section */}
       <div style={{ marginTop: 24 }}>
         <h2 style={{ marginBottom: 12 }}>Diskusi</h2>
+
+        <form onSubmit={handleAddComment} className="card" style={{ marginBottom: 12 }}>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Tulis komentar atau pertanyaan..."
+            rows={3}
+            style={{ width: '100%', resize: 'vertical', marginBottom: 8, boxSizing: 'border-box' }}
+          />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={submittingComment || !newComment.trim()}
+            style={{ padding: '8px 20px', fontSize: '14px' }}
+          >
+            {submittingComment ? 'Mengirim...' : 'KIRIM'}
+          </button>
+        </form>
+
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {comments.length === 0 && (
             <div className="card">Belum ada komentar.</div>
@@ -164,7 +209,9 @@ export const BacaanDetailPage = () => {
             <CommentItem
               key={c.commentId || c.id}
               comment={c}
+              currentUserId={user?.id}
               onUpdate={handleCommentUpdate}
+              onDelete={handleCommentDelete}
             />
           ))}
         </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ToastProvider, useToast } from "./Toast";
 
 describe("Toast", () => {
@@ -19,9 +19,9 @@ describe("Toast", () => {
       </ToastProvider>,
     );
 
-    getByRole("button").click();
+    fireEvent.click(getByRole("button"));
 
-    expect(screen.getByText("Test message")).toBeInTheDocument();
+    expect(await screen.findByText("Test message")).toBeInTheDocument();
   });
 
   it("should render success toast with success class", async () => {
@@ -38,9 +38,9 @@ describe("Toast", () => {
       </ToastProvider>,
     );
 
-    getByRole("button").click();
+    fireEvent.click(getByRole("button"));
 
-    const toastElement = screen.getByText("Success!");
+    const toastElement = await screen.findByText("Success!");
     expect(toastElement).toHaveClass("success");
   });
 
@@ -60,9 +60,9 @@ describe("Toast", () => {
       </ToastProvider>,
     );
 
-    getByRole("button").click();
+    fireEvent.click(getByRole("button"));
 
-    const toastElement = screen.getByText("Error occurred");
+    const toastElement = await screen.findByText("Error occurred");
     expect(toastElement).toHaveClass("error");
   });
 
@@ -80,9 +80,9 @@ describe("Toast", () => {
       </ToastProvider>,
     );
 
-    getByRole("button").click();
+    fireEvent.click(getByRole("button"));
 
-    expect(screen.getByText("Temporary message")).toBeInTheDocument();
+    expect(await screen.findByText("Temporary message")).toBeInTheDocument();
 
     // Wait for toast to disappear (default TTL is 3500ms)
     await waitFor(
@@ -109,9 +109,9 @@ describe("Toast", () => {
       </ToastProvider>,
     );
 
-    getByRole("button").click();
+    fireEvent.click(getByRole("button"));
 
-    expect(screen.getByText("Quick disappear")).toBeInTheDocument();
+    expect(await screen.findByText("Quick disappear")).toBeInTheDocument();
 
     await waitFor(
       () => {
@@ -139,14 +139,13 @@ describe("Toast", () => {
       </ToastProvider>,
     );
 
-    const buttons = getByRole("button");
-    buttons.click();
-    getByRole("button", { name: /Toast 2/ }).click();
-    getByRole("button", { name: /Toast 3/ }).click();
+    fireEvent.click(getByRole("button", { name: /Toast 1/ }));
+    fireEvent.click(getByRole("button", { name: /Toast 2/ }));
+    fireEvent.click(getByRole("button", { name: /Toast 3/ }));
 
-    expect(screen.getByText("Message 1")).toBeInTheDocument();
-    expect(screen.getByText("Message 2")).toBeInTheDocument();
-    expect(screen.getByText("Message 3")).toBeInTheDocument();
+    expect(await screen.findByText("Message 1")).toBeInTheDocument();
+    expect(await screen.findByText("Message 2")).toBeInTheDocument();
+    expect(await screen.findByText("Message 3")).toBeInTheDocument();
   });
 
   it("should throw error when useToast is used outside provider", () => {

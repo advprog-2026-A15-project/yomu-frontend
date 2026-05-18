@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CommentItem } from "./CommentItem";
-import * as forumService from "../services/forumService";
+import { forumService } from "../services/forumService";
 import { ToastProvider } from "../../../components/Toast";
 
-vi.mock("../services/forumService");
+vi.mock("../services/forumService", () => ({
+  forumService: {
+    addReaction: vi.fn(),
+  },
+}));
 
 const mockComment = {
   commentId: "c1",
