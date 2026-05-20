@@ -11,6 +11,7 @@ import { ClanPage } from "./features/clan/pages/ClanPage";
 import { ClanManagePage } from "./features/clan/pages/ClanManagePage";
 import { Navbar } from "./components/Navbar";
 import { HomePage } from "./pages/HomePage";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 
 import { ToastProvider } from "./components/Toast";
 
@@ -39,6 +40,7 @@ function App() {
 
             <Route path="/clan" element={<ClanPage />} />
             <Route path="/clan/:clanId/manage" element={<ClanManagePage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
           </Routes>
         </main>
       </div>

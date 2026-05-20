@@ -19,6 +19,9 @@ export const Navbar = () => {
           <Link to="/learning" className="nav-item">Belajar</Link>
           <Link to="/clan" className="nav-item">Liga</Link>
           <Link to="/achievements" className="nav-item">Misi</Link>
+          {user.role === 'ADMIN' && (
+            <Link to="/admin" className="nav-item" style={{ color: 'var(--danger)' }}>Admin</Link>
+          )}
           <div className="nav-user">
             <Link to="/profile" className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '14px' }}>
               Profil ({user.username})

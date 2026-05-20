@@ -51,7 +51,7 @@ export const BacaanDetailPage = () => {
 
   const loadComments = async () => {
     try {
-      const res = await forumService.getComments(id);
+      const res = await forumService.getCommentsTree(id);
       setComments(res || []);
     } catch (err) {
       console.error(err);
@@ -62,15 +62,13 @@ export const BacaanDetailPage = () => {
   const [submittingComment, setSubmittingComment] = useState(false);
 
   const handleCommentUpdate = (updated) => {
-    setComments((prev) =>
-      prev.map((c) =>
-        c.commentId === updated.commentId || c.id === updated.id ? updated : c,
-      ),
-    );
+    // If tree is active, we reload to get correct structure, but we keep this handler
+    loadComments();
   };
 
   const handleCommentDelete = (commentId) => {
-    setComments((prev) => prev.filter((c) => (c.commentId || c.id) !== commentId));
+    // If tree is active, we reload to get correct structure, but we keep this handler
+    loadComments();
   };
 
   const handleAddComment = async (e) => {
@@ -78,13 +76,13 @@ export const BacaanDetailPage = () => {
     if (!newComment.trim()) return;
     setSubmittingComment(true);
     try {
-      const created = await forumService.createComment({
+      await forumService.createComment({
         bacaanId: id,
         userId: user.id,
         commentContent: newComment.trim(),
       });
-      setComments((prev) => [...prev, created]);
       setNewComment('');
+      await loadComments();
     } catch (err) {
       toast(err.message || 'Gagal mengirim komentar.', 'error');
     } finally {
@@ -212,6 +210,7 @@ export const BacaanDetailPage = () => {
               currentUserId={user?.id}
               onUpdate={handleCommentUpdate}
               onDelete={handleCommentDelete}
+              onRefresh={loadComments}
             />
           ))}
         </div>

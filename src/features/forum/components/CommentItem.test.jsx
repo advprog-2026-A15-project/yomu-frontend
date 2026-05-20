@@ -7,7 +7,19 @@ import { ToastProvider } from "../../../components/Toast";
 vi.mock("../services/forumService", () => ({
   forumService: {
     addReaction: vi.fn(),
+    updateComment: vi.fn(),
+    deleteComment: vi.fn(),
   },
+}));
+
+const mockUser = { id: "user1", username: "user1", role: "PELAJAR" };
+const mockUseAuth = vi.fn(() => ({
+  user: mockUser,
+  isLoading: false,
+}));
+
+vi.mock("../../auth", () => ({
+  useAuth: () => mockUseAuth(),
 }));
 
 const mockComment = {
@@ -33,6 +45,10 @@ const renderWithToast = (component) => {
 describe("CommentItem", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuth.mockReturnValue({
+      user: { id: "user1", username: "user1", role: "PELAJAR" },
+      isLoading: false,
+    });
   });
 
   it("should render comment content and author", () => {
@@ -236,5 +252,75 @@ describe("CommentItem", () => {
       screen.getByText("<script>alert('xss')</script>"),
     ).toBeInTheDocument();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
+
+  it("should render Edit and Delete buttons for author", () => {
+    renderWithToast(<CommentItem comment={mockComment} />);
+
+    expect(screen.getByText("Edit")).toBeInTheDocument();
+    expect(screen.getByText("Hapus")).toBeInTheDocument();
+  });
+
+  it("should render Delete button but NOT Edit button for Admin who is not author", () => {
+    mockUseAuth.mockReturnValueOnce({
+      user: { id: "admin_user", username: "admin_user", role: "ADMIN" },
+      isLoading: false,
+    });
+
+    renderWithToast(<CommentItem comment={mockComment} />);
+
+    expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    expect(screen.getByText("Hapus")).toBeInTheDocument();
+  });
+
+  it("should not render Edit or Delete buttons for regular user who is not author", () => {
+    mockUseAuth.mockReturnValueOnce({
+      user: { id: "other_user", username: "other_user", role: "PELAJAR" },
+      isLoading: false,
+    });
+
+    renderWithToast(<CommentItem comment={mockComment} />);
+
+    expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    expect(screen.queryByText("Hapus")).not.toBeInTheDocument();
+  });
+
+  it("should call deleteComment when Hapus is clicked", async () => {
+    const onDelete = vi.fn();
+    forumService.deleteComment.mockResolvedValueOnce({ success: true });
+    vi.spyOn(window, "confirm").mockReturnValueOnce(true);
+
+    renderWithToast(<CommentItem comment={mockComment} onDelete={onDelete} />);
+
+    const deleteButton = screen.getByText("Hapus");
+    fireEvent.click(deleteButton);
+
+    expect(forumService.deleteComment).toHaveBeenCalledWith("c1");
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalledWith("c1");
+    });
+  });
+
+  it("should call updateComment when Edit is submitted", async () => {
+    const onUpdate = vi.fn();
+    const updatedComment = { ...mockComment, commentContent: "Edited text" };
+    forumService.updateComment.mockResolvedValueOnce(updatedComment);
+
+    renderWithToast(<CommentItem comment={mockComment} onUpdate={onUpdate} />);
+
+    const editButton = screen.getByText("Edit");
+    fireEvent.click(editButton);
+
+    const textarea = screen.getByRole("textbox");
+    fireEvent.change(textarea, { target: { value: "Edited text" } });
+
+    const saveButton = screen.getByText("SIMPAN");
+    fireEvent.click(saveButton);
+
+    expect(forumService.updateComment).toHaveBeenCalledWith("c1", "Edited text");
+    await waitFor(() => {
+      expect(onUpdate).toHaveBeenCalledWith(updatedComment);
+      expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    });
   });
 });
