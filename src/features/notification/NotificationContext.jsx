@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useToast } from "../../../components/Toast";
+import { useToast } from "../../components/Toast";
 import { useAuth } from "../../auth/hooks/useAuth";
 
 const NotificationContext = createContext();
