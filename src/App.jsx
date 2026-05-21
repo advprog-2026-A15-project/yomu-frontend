@@ -16,13 +16,13 @@ import { LeagueStandingsPage } from "./pages/LeagueStandingsPage";
 
 import { ToastProvider } from "./components/Toast";
 import { ThemeProvider } from "./features/theme/ThemeContext";
-import { NotificationListener } from "./components/NotificationListener";
+import { NotificationProvider } from "./features/notification/NotificationContext";
 
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <NotificationListener />
+        <NotificationProvider>
         <div
           style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
         >
@@ -50,6 +50,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      </NotificationProvider>
       </ToastProvider>
     </ThemeProvider>
   );

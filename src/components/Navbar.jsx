@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useTheme } from '../features/theme/ThemeContext';
 import { Moon, Sun, Monitor } from 'lucide-react';
+import { NotificationMenu } from './NotificationMenu';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -29,6 +30,8 @@ export const Navbar = () => {
             <Monitor size={18} />
           </button>
         </div>
+
+        {user && <NotificationMenu />}
 
         {user ? (
           <div className="nav-links">

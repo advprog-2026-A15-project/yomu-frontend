@@ -15,6 +15,23 @@
   --ach-shadow: 0 16px 40px rgba(22, 33, 47, 0.08);
 }
 
+:root.dark {
+  --ach-bg: #121212;
+  --ach-surface: #1e1e1e;
+  --ach-border: #333333;
+  --ach-text: #e0e0e0;
+  --ach-muted: #a0a0a0;
+  --ach-primary: #3b82f6;
+  --ach-primary-dark: #2563eb;
+  --ach-green: #10b981;
+  --ach-green-soft: rgba(16, 185, 129, 0.15);
+  --ach-amber: #f59e0b;
+  --ach-amber-soft: rgba(245, 158, 11, 0.15);
+  --ach-red: #ef4444;
+  --ach-red-soft: rgba(239, 68, 68, 0.15);
+  --ach-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
 .achievement-shell {
   min-height: 100svh;
   background:
