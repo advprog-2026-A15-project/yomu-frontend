@@ -21,6 +21,25 @@
   --font-family: 'Nunito', sans-serif;
 }
 
+:root.dark {
+  --primary: #58cc02;
+  --primary-hover: #46a302;
+  --primary-shadow: #3b8700;
+  --secondary: #1cb0f6;
+  --secondary-hover: #1480b3;
+  --secondary-shadow: #0f618a;
+  --danger: #ff4b4b;
+  --danger-shadow: #d11a1a;
+  --warning: #ffc800;
+  --warning-shadow: #cc9f00;
+  --text-main: #f9fafb;
+  --text-light: #9ca3af;
+  --bg-main: #1f2937;
+  --bg-page: #111827;
+  --border-color: #374151;
+  --border-light: #1f2937;
+}
+
 body {
   margin: 0;
   padding: 0;

@@ -12,15 +12,18 @@ import { ClanManagePage } from "./features/clan/pages/ClanManagePage";
 import { Navbar } from "./components/Navbar";
 import { HomePage } from "./pages/HomePage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { LeagueStandingsPage } from "./pages/LeagueStandingsPage";
 
 import { ToastProvider } from "./components/Toast";
+import { ThemeProvider } from "./features/theme/ThemeContext";
 
 function App() {
   return (
-    <ToastProvider>
-      <div
-        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-      >
+    <ThemeProvider>
+      <ToastProvider>
+        <div
+          style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        >
         <Navbar />
         <main style={{ flex: 1 }}>
           <Routes>
@@ -40,11 +43,13 @@ function App() {
 
             <Route path="/clan" element={<ClanPage />} />
             <Route path="/clan/:clanId/manage" element={<ClanManagePage />} />
+            <Route path="/liga/standings" element={<LeagueStandingsPage />} />
             <Route path="/admin" element={<AdminDashboardPage />} />
           </Routes>
         </main>
       </div>
-    </ToastProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 }
 
