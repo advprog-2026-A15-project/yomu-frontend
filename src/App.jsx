@@ -16,11 +16,13 @@ import { LeagueStandingsPage } from "./pages/LeagueStandingsPage";
 
 import { ToastProvider } from "./components/Toast";
 import { ThemeProvider } from "./features/theme/ThemeContext";
+import { NotificationListener } from "./components/NotificationListener";
 
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
+        <NotificationListener />
         <div
           style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
         >
