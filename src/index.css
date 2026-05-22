@@ -17,6 +17,7 @@
   --bg-page: #f7f7f7;
   --border-color: #e5e5e5;
   --border-light: #f0f0f0;
+  --bg-selected: #eef9ff;
 
   --font-family: 'Nunito', sans-serif;
 }
@@ -38,6 +39,7 @@
   --bg-page: #111827;
   --border-color: #374151;
   --border-light: #1f2937;
+  --bg-selected: #1e3a8a;
 }
 
 body {

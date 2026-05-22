@@ -11,9 +11,11 @@ import {
   ShieldCheck,
   Target,
   Trophy,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '../../auth';
 import { achievementService } from '../services/achievementService';
+import { clanService } from '../../clan/services/clanService';
 import '../styles/achievements.css';
 
 const metricLabels = {
@@ -60,6 +62,7 @@ export const AchievementsPage = () => {
   const [claimingMissionId, setClaimingMissionId] = useState(null);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [membership, setMembership] = useState(null);
   const userId = user?.id;
 
   const loadDashboard = async () => {
@@ -71,8 +74,10 @@ export const AchievementsPage = () => {
     setError(null);
     try {
       const dashboardData = await fetchDashboard(userId);
+      const m = await clanService.getMembership(userId).catch(() => null);
       setAchievements(dashboardData.achievementData);
       setDailyMissions(dashboardData.missionData);
+      setMembership(m);
     } catch (loadError) {
       setError(loadError.message);
     } finally {
@@ -90,9 +95,11 @@ export const AchievementsPage = () => {
 
       try {
         const dashboardData = await fetchDashboard(userId);
+        const m = await clanService.getMembership(userId).catch(() => null);
         if (!shouldIgnore) {
           setAchievements(dashboardData.achievementData);
           setDailyMissions(dashboardData.missionData);
+          setMembership(m);
           setError(null);
         }
       } catch (loadError) {
@@ -215,11 +222,22 @@ export const AchievementsPage = () => {
           <span>{summary.claimableMissions}</span>
           <p>Reward siap klaim</p>
         </div>
+        <div className="achievement-summary-item" style={{ borderColor: 'var(--warning)', backgroundColor: 'rgba(255, 200, 0, 0.05)' }}>
+          <Star size={22} color="var(--warning)" />
+          <span style={{ color: 'var(--warning)' }}>{membership?.personalScore ?? 0}</span>
+          <p style={{ color: 'var(--text-light)' }}>Total skor (clan)</p>
+        </div>
       </section>
 
       <section className="achievement-section">
-        <div className="achievement-section-heading">
+        <div className="achievement-section-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <h2>Daily Mission</h2>
+          {membership && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', border: '1px solid var(--warning)', borderRadius: '20px', backgroundColor: 'rgba(255, 200, 0, 0.05)' }}>
+              <Star size={16} color="var(--warning)" />
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--warning)' }}>Total Skor: {membership.personalScore ?? 0} poin <span style={{ fontWeight: 'normal', opacity: 0.8 }}>(di clan)</span></span>
+            </div>
+          )}
         </div>
 
         {isLoading && dailyMissions.length === 0 ? (

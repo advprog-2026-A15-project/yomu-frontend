@@ -57,6 +57,34 @@ export const LeagueStandingsPage = () => {
         <p className="page-subtitle" style={{ fontSize: '18px' }}>Pantau peringkat clan di setiap divisi kompetisi</p>
       </div>
 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '16px',
+        marginBottom: '40px'
+      }}>
+        {[
+          { tier: 'Diamond', points: '600+ poin', color: '#b9f2ff', icon: <Trophy size={20} color="#00bfff" /> },
+          { tier: 'Gold', points: '300 - 599 poin', color: '#ffd700', icon: <Award size={20} color="#ffd700" /> },
+          { tier: 'Silver', points: '100 - 299 poin', color: '#c0c0c0', icon: <Medal size={20} color="#c0c0c0" /> },
+          { tier: 'Bronze', points: '0 - 99 poin', color: '#cd7f32', icon: <Star size={20} color="#cd7f32" /> }
+        ].map(t => (
+          <div key={t.tier} style={{
+            padding: '16px',
+            borderRadius: '12px',
+            border: `1px solid ${t.color}`,
+            backgroundColor: 'var(--bg-main)',
+            textAlign: 'center'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              {t.icon}
+              <span style={{ fontWeight: 'bold', color: t.color }}>{t.tier}</span>
+            </div>
+            <div style={{ fontSize: '14px', color: 'var(--text-light)' }}>{t.points}</div>
+          </div>
+        ))}
+      </div>
+
       {loading ? (
         <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-light)' }}>
           <div className="animate-spin" style={{ display: 'inline-block', marginBottom: '16px' }}>

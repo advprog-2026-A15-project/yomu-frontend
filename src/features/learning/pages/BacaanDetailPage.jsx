@@ -254,7 +254,7 @@ export const BacaanDetailPage = () => {
                           padding: "16px",
                           border: `2px solid ${isSelected ? "var(--secondary)" : "var(--border-color)"}`,
                           backgroundColor: isSelected
-                            ? "#eef9ff"
+                            ? "var(--bg-selected)"
                             : "var(--bg-main)",
                           borderRadius: "12px",
                           cursor: "pointer",
@@ -300,8 +300,18 @@ export const BacaanDetailPage = () => {
           className="card"
           style={{ textAlign: "center", padding: "48px 24px" }}
         >
-          <div style={{ fontSize: "64px", marginBottom: "16px" }}>🎉</div>
-          <h1 className="page-title">Hebat Sekali!</h1>
+          <div style={{ fontSize: "64px", marginBottom: "16px" }}>
+            {score !== null && score === questions.length ? "🎉"
+              : score !== null && score >= questions.length / 2 ? "👍"
+              : score !== null ? "💪"
+              : "🎉"}
+          </div>
+          <h1 className="page-title">
+            {score !== null && score === questions.length ? "Sempurna!"
+              : score !== null && score >= questions.length / 2 ? "Hebat Sekali!"
+              : score !== null ? "Coba Lagi!"
+              : "Hebat Sekali!"}
+          </h1>
           <p className="page-subtitle">
             Kamu telah menyelesaikan modul bacaan ini.
           </p>
