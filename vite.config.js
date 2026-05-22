@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,11 +9,14 @@ export default defineConfig({
       "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
     },
     proxy: {
-      '/api': {
-        target: 'http://localhost:8090',
+      "/api": {
+        target: "http://localhost:8090",
         changeOrigin: true,
         secure: false,
       },
     },
   },
-})
+  preview: {
+    allowedHosts: ["yomu-infra.duckdns.org"],
+  },
+});
