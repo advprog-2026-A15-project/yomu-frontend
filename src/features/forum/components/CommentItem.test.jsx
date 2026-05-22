@@ -12,7 +12,12 @@ vi.mock("../services/forumService", () => ({
   },
 }));
 
-const mockUser = { id: "user1", username: "user1", role: "PELAJAR" };
+const mockUser = {
+  id: "user1",
+  username: "user1",
+  displayName: "User Satu",
+  role: "PELAJAR",
+};
 const mockUseAuth = vi.fn(() => ({
   user: mockUser,
   isLoading: false,
@@ -46,7 +51,12 @@ describe("CommentItem", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseAuth.mockReturnValue({
-      user: { id: "user1", username: "user1", role: "PELAJAR" },
+      user: {
+        id: "user1",
+        username: "user1",
+        displayName: "User Satu",
+        role: "PELAJAR",
+      },
       isLoading: false,
     });
   });
@@ -54,7 +64,7 @@ describe("CommentItem", () => {
   it("should render comment content and author", () => {
     renderWithToast(<CommentItem comment={mockComment} />);
 
-    expect(screen.getByText("user1")).toBeInTheDocument();
+    expect(screen.getByText("@user1 - User Satu")).toBeInTheDocument();
     expect(screen.getByText("Test comment content")).toBeInTheDocument();
   });
 
@@ -317,7 +327,10 @@ describe("CommentItem", () => {
     const saveButton = screen.getByText("SIMPAN");
     fireEvent.click(saveButton);
 
-    expect(forumService.updateComment).toHaveBeenCalledWith("c1", "Edited text");
+    expect(forumService.updateComment).toHaveBeenCalledWith(
+      "c1",
+      "Edited text",
+    );
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith(updatedComment);
       expect(screen.queryByRole("textbox")).not.toBeInTheDocument();

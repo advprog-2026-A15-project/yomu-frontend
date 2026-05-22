@@ -12,18 +12,34 @@ const decodeHtmlEntities = (value = "") => {
   return textarea.value;
 };
 
+const formatAuthorLabel = (comment, user) => {
+  const rawUserId = comment.userId || "unknown";
+  const username =
+    comment.username ||
+    comment.userName ||
+    (rawUserId === user?.id ? user?.username : null) ||
+    rawUserId;
+  const displayName =
+    comment.displayName ||
+    comment.authorName ||
+    (rawUserId === user?.id ? user?.displayName : null) ||
+    username;
+
+  return `@${username} - ${displayName}`;
+};
+
 export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
   const { user } = useAuth();
   const displayContent = decodeHtmlEntities(
     comment.commentContent || comment.content || "",
   );
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
-  
+
   const [counts, setCounts] = useState({
     upvotes: comment.upvotes ?? 0,
     downvotes: comment.downvotes ?? 0,
@@ -79,10 +95,12 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
         setCounts({
           upvotes: updated.upvotes ?? updated.upvote ?? next.upvotes,
           downvotes: updated.downvotes ?? next.downvotes,
-          thumbsUp: updated.reactionThumbsUp ?? updated.thumbsUp ?? next.thumbsUp,
+          thumbsUp:
+            updated.reactionThumbsUp ?? updated.thumbsUp ?? next.thumbsUp,
           heart: updated.reactionHeart ?? updated.heart ?? next.heart,
           laugh: updated.reactionLaugh ?? updated.laugh ?? next.laugh,
-          surprise: updated.reactionSurprise ?? updated.surprise ?? next.surprise,
+          surprise:
+            updated.reactionSurprise ?? updated.surprise ?? next.surprise,
           sad: updated.reactionSad ?? updated.sad ?? next.sad,
         });
         if (onUpdate) onUpdate(updated);
@@ -121,7 +139,10 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
     setSaving(true);
     try {
       const commentId = comment.commentId || comment.id;
-      const updated = await forumService.updateComment(commentId, editContent.trim());
+      const updated = await forumService.updateComment(
+        commentId,
+        editContent.trim(),
+      );
       toast("Komentar berhasil diperbarui.", "success");
       setIsEditing(false);
       if (onUpdate) onUpdate(updated);
@@ -171,9 +192,22 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span className="comment-author" style={{ fontWeight: "bold" }}>{comment.userId}</span>
+            <span className="comment-author" style={{ fontWeight: "bold" }}>
+              {formatAuthorLabel(comment, user)}
+            </span>
             {comment.userId === user?.id && (
-              <span style={{ fontSize: 11, backgroundColor: "#eef9ff", color: "var(--secondary)", padding: "2px 6px", borderRadius: 4, fontWeight: "bold" }}>Penulis</span>
+              <span
+                style={{
+                  fontSize: 11,
+                  backgroundColor: "#eef9ff",
+                  color: "var(--secondary)",
+                  padding: "2px 6px",
+                  borderRadius: 4,
+                  fontWeight: "bold",
+                }}
+              >
+                Penulis
+              </span>
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -181,15 +215,28 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
               className="comment-timestamp"
               style={{ color: "var(--text-light)", fontSize: 12 }}
             >
-              {new Date(comment.timestamp || comment.createdAt).toLocaleString()}
+              {new Date(
+                comment.timestamp || comment.createdAt,
+              ).toLocaleString()}
             </span>
 
             {/* Actions controls */}
             <div style={{ display: "flex", gap: 8 }}>
               {user && (
                 <button
-                  onClick={() => { setIsReplying(!isReplying); setReplyContent(""); }}
-                  style={{ background: "none", border: "none", padding: 0, color: "var(--secondary)", cursor: "pointer", fontSize: 12, fontWeight: "bold" }}
+                  onClick={() => {
+                    setIsReplying(!isReplying);
+                    setReplyContent("");
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    color: "var(--secondary)",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontWeight: "bold",
+                  }}
                 >
                   {isReplying ? "Batal" : "Balas"}
                 </button>
@@ -198,15 +245,34 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
                 <>
                   {comment.userId === user?.id && !isEditing && (
                     <button
-                      onClick={() => { setIsEditing(true); setEditContent(displayContent); }}
-                      style={{ background: "none", border: "none", padding: 0, color: "var(--secondary)", cursor: "pointer", fontSize: 12, fontWeight: "bold" }}
+                      onClick={() => {
+                        setIsEditing(true);
+                        setEditContent(displayContent);
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        color: "var(--secondary)",
+                        cursor: "pointer",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                      }}
                     >
                       Edit
                     </button>
                   )}
                   <button
                     onClick={handleDelete}
-                    style={{ background: "none", border: "none", padding: 0, color: "var(--danger)", cursor: "pointer", fontSize: 12, fontWeight: "bold" }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      color: "var(--danger)",
+                      cursor: "pointer",
+                      fontSize: 12,
+                      fontWeight: "bold",
+                    }}
                   >
                     Hapus
                   </button>
@@ -223,13 +289,27 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
               onChange={(e) => setEditContent(e.target.value)}
               rows={3}
               required
-              style={{ width: "100%", boxSizing: "border-box", marginBottom: 8 }}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                marginBottom: 8,
+              }}
             />
             <div style={{ display: "flex", gap: 8 }}>
-              <button type="submit" className="btn btn-primary" style={{ padding: "6px 16px", fontSize: 12 }} disabled={saving}>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ padding: "6px 16px", fontSize: 12 }}
+                disabled={saving}
+              >
                 {saving ? "Menyimpan..." : "SIMPAN"}
               </button>
-              <button type="button" className="btn btn-outline" style={{ padding: "6px 16px", fontSize: 12 }} onClick={() => setIsEditing(false)}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ padding: "6px 16px", fontSize: 12 }}
+                onClick={() => setIsEditing(false)}
+              >
                 BATAL
               </button>
             </div>
@@ -304,13 +384,27 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
               onChange={(e) => setReplyContent(e.target.value)}
               rows={2}
               required
-              style={{ width: "100%", boxSizing: "border-box", marginBottom: 8 }}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                marginBottom: 8,
+              }}
             />
             <div style={{ display: "flex", gap: 8 }}>
-              <button type="submit" className="btn btn-primary" style={{ padding: "6px 16px", fontSize: 12 }} disabled={submittingReply}>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ padding: "6px 16px", fontSize: 12 }}
+                disabled={submittingReply}
+              >
                 {submittingReply ? "Mengirim..." : "KIRIM BALASAN"}
               </button>
-              <button type="button" className="btn btn-outline" style={{ padding: "6px 16px", fontSize: 12 }} onClick={() => setIsReplying(false)}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ padding: "6px 16px", fontSize: 12 }}
+                onClick={() => setIsReplying(false)}
+              >
                 BATAL
               </button>
             </div>
@@ -320,7 +414,17 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
 
       {/* Recursive Replies Rendering */}
       {comment.replies && comment.replies.length > 0 && (
-        <div style={{ marginLeft: "24px", borderLeft: "2px solid var(--border-color)", paddingLeft: "12px", marginTop: "4px", display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div
+          style={{
+            marginLeft: "24px",
+            borderLeft: "2px solid var(--border-color)",
+            paddingLeft: "12px",
+            marginTop: "4px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+          }}
+        >
           {comment.replies.map((reply) => (
             <CommentItem
               key={reply.id || reply.commentId}
