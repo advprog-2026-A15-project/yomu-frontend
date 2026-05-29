@@ -9,11 +9,13 @@ import {
   Medal,
   RefreshCw,
   ShieldCheck,
+  Star,
   Target,
   Trophy,
 } from 'lucide-react';
 import { useAuth } from '../../auth';
 import { achievementService } from '../services/achievementService';
+import { clanService } from '../../clan/services/clanService';
 import '../styles/achievements.css';
 
 const metricLabels = {
@@ -44,17 +46,26 @@ const progressPercent = (progress, target) => {
 };
 
 const fetchDashboard = async (targetUserId) => {
-  const [achievementData, missionData] = await Promise.all([
+  const [achievementData, missionData, totalPoints, membership] = await Promise.all([
     achievementService.listAchievements(targetUserId),
     achievementService.listDailyMissions(targetUserId),
+    achievementService.getTotalClaimedPoints(targetUserId),
+    clanService.getMembership(targetUserId).catch(() => null),
   ]);
-  return { achievementData, missionData };
+  return {
+    achievementData,
+    missionData,
+    totalPoints,
+    personalScore: membership?.personalScore ?? null,
+  };
 };
 
 export const AchievementsPage = () => {
   const { user, isLoading: authLoading } = useAuth();
   const [achievements, setAchievements] = useState([]);
   const [dailyMissions, setDailyMissions] = useState([]);
+  const [totalClaimedPoints, setTotalClaimedPoints] = useState(0);
+  const [personalScore, setPersonalScore] = useState(null);
   const [selectedMetric, setSelectedMetric] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const [claimingMissionId, setClaimingMissionId] = useState(null);
@@ -73,6 +84,8 @@ export const AchievementsPage = () => {
       const dashboardData = await fetchDashboard(userId);
       setAchievements(dashboardData.achievementData);
       setDailyMissions(dashboardData.missionData);
+      setTotalClaimedPoints(dashboardData.totalPoints);
+      setPersonalScore(dashboardData.personalScore);
     } catch (loadError) {
       setError(loadError.message);
     } finally {
@@ -93,6 +106,8 @@ export const AchievementsPage = () => {
         if (!shouldIgnore) {
           setAchievements(dashboardData.achievementData);
           setDailyMissions(dashboardData.missionData);
+          setTotalClaimedPoints(dashboardData.totalPoints);
+          setPersonalScore(dashboardData.personalScore);
           setError(null);
         }
       } catch (loadError) {
@@ -134,11 +149,11 @@ export const AchievementsPage = () => {
     };
   }, [achievements, dailyMissions]);
 
-  const handlePin = async (achievementId) => {
+  const handlePin = async (achievementId, currentlyPinned) => {
     if (!userId) return;
     try {
-      await achievementService.pinAchievement(achievementId, userId);
-      setSuccessMessage('Achievement berhasil di-pin.');
+      await achievementService.pinAchievement(achievementId, userId, !currentlyPinned);
+      setSuccessMessage(currentlyPinned ? 'Achievement di-unpin.' : 'Achievement berhasil di-pin.');
       await loadDashboard();
     } catch (pinError) {
       setError(pinError.message);
@@ -215,11 +230,21 @@ export const AchievementsPage = () => {
           <span>{summary.claimableMissions}</span>
           <p>Reward siap klaim</p>
         </div>
+        <div className="achievement-summary-item achievement-summary-item--score">
+          <Star size={22} />
+          <span>{personalScore !== null ? personalScore : totalClaimedPoints}</span>
+          <p>{personalScore !== null ? 'Total skor (clan)' : 'Total skor'}</p>
+        </div>
       </section>
 
       <section className="achievement-section">
         <div className="achievement-section-heading">
           <h2>Daily Mission</h2>
+          <div className="mission-score-badge">
+            <Star size={14} />
+            Total Skor: {personalScore !== null ? personalScore : totalClaimedPoints} poin
+            {personalScore !== null && <span style={{ fontSize: 11, opacity: 0.75, marginLeft: 4 }}>(di clan)</span>}
+          </div>
         </div>
 
         {isLoading && dailyMissions.length === 0 ? (
@@ -332,8 +357,8 @@ export const AchievementsPage = () => {
                       {achievement.unlocked && (
                         <button
                           type="button"
-                          onClick={() => handlePin(achievement.achievementId)}
-                          title={achievement.pinned ? 'Di-pin' : 'Pin achievement ini'}
+                          onClick={() => handlePin(achievement.achievementId, achievement.pinned)}
+                          title={achievement.pinned ? 'Di-pin (klik untuk unpin)' : 'Pin achievement ini'}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, opacity: achievement.pinned ? 1 : 0.4 }}
                         >
                           📌

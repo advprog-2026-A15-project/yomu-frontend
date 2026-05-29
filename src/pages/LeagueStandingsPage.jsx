@@ -43,6 +43,13 @@ export const LeagueStandingsPage = () => {
     }
   };
 
+  const TIER_INFO = {
+    DIAMOND: { label: 'Diamond', range: '600+ poin', min: 600, max: null },
+    GOLD:    { label: 'Gold',    range: '300 – 599 poin', min: 300, max: 599 },
+    SILVER:  { label: 'Silver',  range: '100 – 299 poin', min: 100, max: 299 },
+    BRONZE:  { label: 'Bronze',  range: '0 – 99 poin',   min: 0,   max: 99  },
+  };
+
   // Group clans by tier
   const tiers = ['DIAMOND', 'GOLD', 'SILVER', 'BRONZE'];
   const clansByTier = tiers.reduce((acc, tier) => {
@@ -55,6 +62,34 @@ export const LeagueStandingsPage = () => {
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 className="page-title" style={{ fontSize: '36px', color: 'var(--primary)' }}>Klasemen Liga Yomu</h1>
         <p className="page-subtitle" style={{ fontSize: '18px' }}>Pantau peringkat clan di setiap divisi kompetisi</p>
+      </div>
+
+      {/* Panel info threshold divisi */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '12px',
+        marginBottom: '32px',
+      }}>
+        {tiers.map((tier) => (
+          <div key={tier} style={{
+            border: `2px solid ${getTierColor(tier)}`,
+            borderRadius: '10px',
+            padding: '14px 16px',
+            textAlign: 'center',
+            background: 'var(--bg-main)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '6px' }}>
+              {getTierIcon(tier)}
+              <span style={{ fontWeight: '800', fontSize: '15px', color: getTierColor(tier) }}>
+                {TIER_INFO[tier].label}
+              </span>
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-light)', fontWeight: '600' }}>
+              {TIER_INFO[tier].range}
+            </div>
+          </div>
+        ))}
       </div>
 
       {loading ? (
@@ -72,18 +107,24 @@ export const LeagueStandingsPage = () => {
 
             return (
               <div key={tier} className="card" style={{ padding: 0, overflow: 'hidden', borderTop: `4px solid ${getTierColor(tier)}` }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '12px', 
-                  padding: '16px 24px', 
-                  backgroundColor: 'var(--bg-page)', 
-                  borderBottom: '2px solid var(--border-color)' 
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px 24px',
+                  backgroundColor: 'var(--bg-page)',
+                  borderBottom: '2px solid var(--border-color)',
+                  flexWrap: 'wrap',
                 }}>
                   {getTierIcon(tier)}
-                  <h2 style={{ margin: 0, fontSize: '20px', textTransform: 'capitalize' }}>
-                    Divisi {tier.toLowerCase()}
-                  </h2>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: '20px', textTransform: 'capitalize' }}>
+                      Divisi {TIER_INFO[tier].label}
+                    </h2>
+                    <span style={{ fontSize: '13px', color: getTierColor(tier), fontWeight: '700' }}>
+                      {TIER_INFO[tier].range}
+                    </span>
+                  </div>
                   <span style={{ marginLeft: 'auto', fontSize: '14px', color: 'var(--text-light)', fontWeight: 'bold' }}>
                     {tierClans.length} Clan
                   </span>

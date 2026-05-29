@@ -23,25 +23,31 @@ export const BacaanDetailPage = () => {
   const toast = useToast();
 
   useEffect(() => {
+    loadBacaan();
     if (user) {
-      loadData();
+      loadUserProgress();
       loadComments();
     }
   }, [id, user]);
 
-  const loadData = async () => {
+  const loadBacaan = async () => {
+    try {
+      const bacaanData = await learningService.getBacaan(id);
+      setBacaan(bacaanData);
+      const qs = await learningService.getQuestions(id);
+      setQuestions(qs);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadUserProgress = async () => {
     try {
       const status = await learningService.checkQuizStatus(id, user.id);
       setHasCompleted(status);
       if (status) {
         setMode("DONE");
       }
-
-      const bacaanData = await learningService.getBacaan(id);
-      setBacaan(bacaanData);
-
-      const qs = await learningService.getQuestions(id);
-      setQuestions(qs);
     } catch (error) {
       console.error(error);
     }
@@ -61,12 +67,12 @@ export const BacaanDetailPage = () => {
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  const handleCommentUpdate = (updated) => {
+  const handleCommentUpdate = () => {
     // If tree is active, we reload to get correct structure, but we keep this handler
     loadComments();
   };
 
-  const handleCommentDelete = (commentId) => {
+  const handleCommentDelete = () => {
     // If tree is active, we reload to get correct structure, but we keep this handler
     loadComments();
   };
@@ -118,7 +124,7 @@ export const BacaanDetailPage = () => {
     }
   };
 
-  if (!bacaan) return <div className="page-container">Memuat...</div>;
+  if (!bacaan) return <div className="page-container" style={{ textAlign: 'center', paddingTop: '80px' }}>Memuat bacaan...</div>;
 
   return (
     <div className="page-container" style={{ maxWidth: "800px" }}>
@@ -152,7 +158,19 @@ export const BacaanDetailPage = () => {
             {bacaan.content}
           </div>
 
-          {!hasCompleted ? (
+          {!user ? (
+            <div
+              style={{
+                padding: "16px",
+                backgroundColor: "var(--border-light)",
+                borderRadius: "12px",
+                textAlign: "center",
+                color: "var(--text-light)",
+              }}
+            >
+              <a href="/login" style={{ fontWeight: "bold", color: "var(--primary)" }}>Masuk</a> untuk mengerjakan kuis dan melacak progressmu.
+            </div>
+          ) : !hasCompleted ? (
             <button
               onClick={handleStartQuiz}
               className="btn btn-primary"
@@ -181,23 +199,29 @@ export const BacaanDetailPage = () => {
       <div style={{ marginTop: 24 }}>
         <h2 style={{ marginBottom: 12 }}>Diskusi</h2>
 
-        <form onSubmit={handleAddComment} className="card" style={{ marginBottom: 12 }}>
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Tulis komentar atau pertanyaan..."
-            rows={3}
-            style={{ width: '100%', resize: 'vertical', marginBottom: 8, boxSizing: 'border-box' }}
-          />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={submittingComment || !newComment.trim()}
-            style={{ padding: '8px 20px', fontSize: '14px' }}
-          >
-            {submittingComment ? 'Mengirim...' : 'KIRIM'}
-          </button>
-        </form>
+        {user ? (
+          <form onSubmit={handleAddComment} className="card" style={{ marginBottom: 12 }}>
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Tulis komentar atau pertanyaan..."
+              rows={3}
+              style={{ width: '100%', resize: 'vertical', marginBottom: 8, boxSizing: 'border-box' }}
+            />
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submittingComment || !newComment.trim()}
+              style={{ padding: '8px 20px', fontSize: '14px' }}
+            >
+              {submittingComment ? 'Mengirim...' : 'KIRIM'}
+            </button>
+          </form>
+        ) : (
+          <div className="card" style={{ marginBottom: 12, color: 'var(--text-light)', textAlign: 'center' }}>
+            <a href="/login" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>Masuk</a> untuk ikut berdiskusi.
+          </div>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {comments.length === 0 && (
@@ -295,38 +319,80 @@ export const BacaanDetailPage = () => {
         </div>
       )}
 
-      {mode === "DONE" && (
-        <div
-          className="card"
-          style={{ textAlign: "center", padding: "48px 24px" }}
-        >
-          <div style={{ fontSize: "64px", marginBottom: "16px" }}>🎉</div>
-          <h1 className="page-title">Hebat Sekali!</h1>
-          <p className="page-subtitle">
-            Kamu telah menyelesaikan modul bacaan ini.
-          </p>
+      {mode === "DONE" && (() => {
+        const total = questions.length;
+        const pct = total > 0 && score !== null ? (score / total) * 100 : null;
+        const isPerfect = pct === 100;
+        const isGood = pct !== null && pct >= 60;
+        const emoji = isPerfect ? "🎉" : isGood ? "😊" : pct !== null ? "📚" : "✅";
+        const title = isPerfect
+          ? "Sempurna!"
+          : isGood
+          ? "Bagus!"
+          : pct !== null
+          ? "Terus Berlatih!"
+          : "Selesai!";
+        const subtitle =
+          pct !== null && pct < 60
+            ? "Jangan menyerah! Baca ulang materinya dan coba lagi di bacaan lain."
+            : "Kamu telah menyelesaikan modul bacaan ini.";
+        const scoreColor =
+          pct === null ? "var(--primary)" : isPerfect ? "#58cc02" : isGood ? "var(--primary)" : "#ef4444";
 
-          {score !== null && (
-            <div
-              style={{
-                margin: "24px 0",
-                fontSize: "24px",
-                fontWeight: "bold",
-                color: "var(--primary)",
-              }}
-            >
-              Skor Kamu: {score} / {questions.length} Benar
-            </div>
-          )}
-
-          <button
-            onClick={() => navigate("/learning")}
-            className="btn btn-secondary"
+        return (
+          <div
+            className="card"
+            style={{ textAlign: "center", padding: "48px 24px" }}
           >
-            KEMBALI KE MENU BELAJAR
-          </button>
-        </div>
-      )}
+            <div style={{ fontSize: "64px", marginBottom: "16px" }}>{emoji}</div>
+            <h1 className="page-title" style={{ color: scoreColor }}>{title}</h1>
+            <p className="page-subtitle">{subtitle}</p>
+
+            {score !== null && total > 0 && (
+              <div
+                style={{
+                  margin: "24px 0",
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: scoreColor,
+                }}
+              >
+                Skor Kamu: {score} / {total} Benar
+              </div>
+            )}
+
+            {pct !== null && (
+              <div
+                style={{
+                  margin: "0 auto 24px",
+                  width: "200px",
+                  height: "8px",
+                  backgroundColor: "var(--border-light)",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${pct}%`,
+                    height: "100%",
+                    backgroundColor: scoreColor,
+                    borderRadius: "4px",
+                    transition: "width 0.5s ease",
+                  }}
+                />
+              </div>
+            )}
+
+            <button
+              onClick={() => navigate("/learning")}
+              className="btn btn-secondary"
+            >
+              KEMBALI KE MENU BELAJAR
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 };

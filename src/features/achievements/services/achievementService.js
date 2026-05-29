@@ -76,12 +76,26 @@ export const achievementService = {
     return readJsonOrThrow(response, "Gagal membuat achievement.");
   },
 
-  pinAchievement: async (achievementId, userId) => {
+  pinAchievement: async (achievementId, userId, pin) => {
     const response = await fetch(
-      `${ACHIEVEMENTS_API_URL}/${encodeURIComponent(achievementId)}/pin?userId=${encodeURIComponent(userId)}`,
+      `${ACHIEVEMENTS_API_URL}/${encodeURIComponent(achievementId)}/pin?userId=${encodeURIComponent(userId)}&pin=${pin}`,
       { method: "PUT", headers: getAuthHeaders() },
     );
-    return readJsonOrThrow(response, "Gagal pin achievement.");
+    if (response.ok) return true;
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal pin achievement.");
+  },
+
+  getTotalClaimedPoints: async (userId) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/total-points?userId=${encodeURIComponent(userId)}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+    if (response.ok) return response.json();
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal memuat total poin.");
   },
 
   createDailyMission: async (payload) => {

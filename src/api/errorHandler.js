@@ -39,7 +39,7 @@ export const parseApiErrorResponse = async (response) => {
         status: data.status || response.status,
       };
     }
-  } catch (e) {
+  } catch {
     // If response is not JSON, return generic error
   }
 

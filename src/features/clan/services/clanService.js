@@ -85,12 +85,30 @@ export const clanService = {
     return true;
   },
 
+  leaveClan: async () => {
+    const res = await fetch(`${CLAN_API_URL}/me`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) await readJsonOrThrow(res, "Gagal keluar dari clan.");
+    return true;
+  },
+
   endSeason: async () => {
     const res = await fetch(`${CLAN_API_URL}/admin/end-season`, {
       method: "POST",
       headers: getAuthHeaders(),
     });
     if (!res.ok) throw new Error("Gagal memproses end of season.");
+    return true;
+  },
+
+  recalculateTiers: async () => {
+    const res = await fetch(`${CLAN_API_URL}/admin/recalculate-tiers`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error("Gagal recalculate tier.");
     return true;
   },
 };
