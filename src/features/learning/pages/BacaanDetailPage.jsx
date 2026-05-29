@@ -77,7 +77,7 @@ export const BacaanDetailPage = () => {
     loadComments();
   };
 
-  const handleAddComment = async (e) => {
+  const handleAddComment = async (e) => {s
     e.preventDefault();
     if (!newComment.trim()) return;
     setSubmittingComment(true);
