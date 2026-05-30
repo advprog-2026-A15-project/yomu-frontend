@@ -71,8 +71,8 @@ describe("CommentItem", () => {
   it("should render reaction buttons with initial counts", () => {
     renderWithToast(<CommentItem comment={mockComment} />);
 
-    expect(screen.getByText(/👍 0/)).toBeInTheDocument();
-    expect(screen.getByText(/👎 0/)).toBeInTheDocument();
+    expect(screen.getByText(/⬆️ 0/)).toBeInTheDocument();
+    expect(screen.getByText(/⬇️ 0/)).toBeInTheDocument();
     expect(screen.getByText(/❤️ 0/)).toBeInTheDocument();
     expect(screen.getByText(/😂 0/)).toBeInTheDocument();
     expect(screen.getByText(/😮 0/)).toBeInTheDocument();
@@ -85,13 +85,13 @@ describe("CommentItem", () => {
 
     renderWithToast(<CommentItem comment={mockComment} />);
 
-    const upvoteButton = screen.getByText(/👍 0/).closest("button");
+    const upvoteButton = screen.getByText(/⬆️ 0/).closest("button");
     fireEvent.click(upvoteButton);
 
     expect(forumService.addReaction).toHaveBeenCalledWith("c1", "upvote");
 
     await waitFor(() => {
-      expect(screen.getByText(/👍 1/)).toBeInTheDocument();
+      expect(screen.getByText(/⬆️ 1/)).toBeInTheDocument();
     });
   });
 
@@ -133,15 +133,15 @@ describe("CommentItem", () => {
     const onUpdate = vi.fn();
     renderWithToast(<CommentItem comment={mockComment} onUpdate={onUpdate} />);
 
-    const upvoteButton = screen.getByText(/👍 0/).closest("button");
+    const upvoteButton = screen.getByText(/⬆️ 0/).closest("button");
     fireEvent.click(upvoteButton);
 
     // Wait for optimistic update
-    expect(screen.getByText(/👍 1/)).toBeInTheDocument();
+    expect(screen.getByText(/⬆️ 1/)).toBeInTheDocument();
 
     // Wait for revert on error
     await waitFor(() => {
-      expect(screen.getByText(/👍 0/)).toBeInTheDocument();
+      expect(screen.getByText(/⬆️ 0/)).toBeInTheDocument();
     });
 
     expect(onUpdate).not.toHaveBeenCalled();
@@ -155,7 +155,7 @@ describe("CommentItem", () => {
 
     renderWithToast(<CommentItem comment={mockComment} />);
 
-    const upvoteButton = screen.getByText(/👍 0/).closest("button");
+    const upvoteButton = screen.getByText(/⬆️ 0/).closest("button");
     fireEvent.click(upvoteButton);
 
     expect(upvoteButton).toBeDisabled();
@@ -175,7 +175,7 @@ describe("CommentItem", () => {
 
     renderWithToast(<CommentItem comment={mockComment} onUpdate={onUpdate} />);
 
-    const upvoteButton = screen.getByText(/👍 0/).closest("button");
+    const upvoteButton = screen.getByText(/⬆️ 0/).closest("button");
     fireEvent.click(upvoteButton);
 
     await waitFor(() => {
@@ -195,7 +195,7 @@ describe("CommentItem", () => {
 
     renderWithToast(<CommentItem comment={commentWithoutReactions} />);
 
-    expect(screen.getByText(/👍 0/)).toBeInTheDocument();
+    expect(screen.getByText(/⬆️ 0/)).toBeInTheDocument();
     expect(screen.getByText(/❤️ 0/)).toBeInTheDocument();
   });
 
@@ -205,7 +205,7 @@ describe("CommentItem", () => {
 
     renderWithToast(<CommentItem comment={mockComment} />);
 
-    const upvoteButton = screen.getByText(/👍 0/).closest("button");
+    const upvoteButton = screen.getByText(/⬆️ 0/).closest("button");
 
     // Click multiple times rapidly
     fireEvent.click(upvoteButton);
@@ -225,7 +225,7 @@ describe("CommentItem", () => {
 
     renderWithToast(<CommentItem comment={commentWithId} />);
 
-    const upvoteButton = screen.getByText(/👍 0/).closest("button");
+    const upvoteButton = screen.getByText(/⬆️ 0/).closest("button");
     fireEvent.click(upvoteButton);
 
     expect(forumService.addReaction).toHaveBeenCalledWith("c1", "upvote");

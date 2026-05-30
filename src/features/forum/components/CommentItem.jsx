@@ -12,6 +12,33 @@ const decodeHtmlEntities = (value = "") => {
   return textarea.value;
 };
 
+// Calculate reaction score for a comment based on positive and negative reactions
+const getReactionScore = (comment) => {
+  const upvotes = comment.upvotes ?? 0;
+  const downvotes = comment.downvotes ?? 0;
+  return upvotes - downvotes;
+};
+
+// Sort comments by reaction score (positive reactions - negative reactions)
+export const sortCommentsByReactionScore = (comments = []) => {
+  if (!Array.isArray(comments)) return [];
+  return [...comments].sort((a, b) => {
+    const scoreA = getReactionScore(a);
+    const scoreB = getReactionScore(b);
+    return scoreB - scoreA; // descending order (highest score first)
+  });
+};
+
+// Sort comments by newest (based on timestamp or createdAt)
+export const sortCommentsByNewest = (comments = []) => {
+  if (!Array.isArray(comments)) return [];
+  return [...comments].sort((a, b) => {
+    const timeA = new Date(a.timestamp || a.createdAt).getTime();
+    const timeB = new Date(b.timestamp || b.createdAt).getTime();
+    return timeB - timeA; // descending order (newest first)
+  });
+};
+
 const formatAuthorLabel = (comment, user) => {
   const rawUserId = comment.userId || "unknown";
   const username =
@@ -199,7 +226,7 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
               <span
                 style={{
                   fontSize: 11,
-                  backgroundColor: "#eef9ff",
+                  backgroundColor: "var(--bg-selected)",
                   color: "var(--secondary)",
                   padding: "2px 6px",
                   borderRadius: 4,

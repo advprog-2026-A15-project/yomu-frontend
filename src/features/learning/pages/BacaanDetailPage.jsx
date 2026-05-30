@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { learningService } from "../services/learningService";
 import { useAuth } from "../../auth/hooks/useAuth";
-import { CommentItem } from "../../forum/components/CommentItem";
+import {
+  CommentItem,
+  sortCommentsByReactionScore,
+  sortCommentsByNewest,
+} from "../../forum/components/CommentItem";
 import { forumService } from "../../forum/services/forumService";
 import { useToast } from "../../../components/Toast";
 
@@ -20,6 +24,7 @@ export const BacaanDetailPage = () => {
   const [score, setScore] = useState(null);
 
   const [comments, setComments] = useState([]);
+  const [commentSort, setCommentSort] = useState("newest"); // 'newest' or 'reactions'
   const toast = useToast();
 
   useEffect(() => {
@@ -64,7 +69,7 @@ export const BacaanDetailPage = () => {
     }
   };
 
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
 
   const handleCommentUpdate = () => {
@@ -87,10 +92,10 @@ export const BacaanDetailPage = () => {
         userId: user.id,
         commentContent: newComment.trim(),
       });
-      setNewComment('');
+      setNewComment("");
       await loadComments();
     } catch (err) {
-      toast(err.message || 'Gagal mengirim komentar.', 'error');
+      toast(err.message || "Gagal mengirim komentar.", "error");
     } finally {
       setSubmittingComment(false);
     }
@@ -124,7 +129,15 @@ export const BacaanDetailPage = () => {
     }
   };
 
-  if (!bacaan) return <div className="page-container" style={{ textAlign: 'center', paddingTop: '80px' }}>Memuat bacaan...</div>;
+  if (!bacaan)
+    return (
+      <div
+        className="page-container"
+        style={{ textAlign: "center", paddingTop: "80px" }}
+      >
+        Memuat bacaan...
+      </div>
+    );
 
   return (
     <div className="page-container" style={{ maxWidth: "800px" }}>
@@ -168,7 +181,13 @@ export const BacaanDetailPage = () => {
                 color: "var(--text-light)",
               }}
             >
-              <a href="/login" style={{ fontWeight: "bold", color: "var(--primary)" }}>Masuk</a> untuk mengerjakan kuis dan melacak progressmu.
+              <a
+                href="/login"
+                style={{ fontWeight: "bold", color: "var(--primary)" }}
+              >
+                Masuk
+              </a>{" "}
+              untuk mengerjakan kuis dan melacak progressmu.
             </div>
           ) : !hasCompleted ? (
             <button
@@ -200,26 +219,81 @@ export const BacaanDetailPage = () => {
         <h2 style={{ marginBottom: 12 }}>Diskusi</h2>
 
         {user ? (
-          <form onSubmit={handleAddComment} className="card" style={{ marginBottom: 12 }}>
+          <form
+            onSubmit={handleAddComment}
+            className="card"
+            style={{ marginBottom: 12 }}
+          >
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Tulis komentar atau pertanyaan..."
               rows={3}
-              style={{ width: '100%', resize: 'vertical', marginBottom: 8, boxSizing: 'border-box' }}
+              style={{
+                width: "100%",
+                resize: "vertical",
+                marginBottom: 8,
+                boxSizing: "border-box",
+              }}
             />
             <button
               type="submit"
               className="btn btn-primary"
               disabled={submittingComment || !newComment.trim()}
-              style={{ padding: '8px 20px', fontSize: '14px' }}
+              style={{ padding: "8px 20px", fontSize: "14px" }}
             >
-              {submittingComment ? 'Mengirim...' : 'KIRIM'}
+              {submittingComment ? "Mengirim..." : "KIRIM"}
             </button>
           </form>
         ) : (
-          <div className="card" style={{ marginBottom: 12, color: 'var(--text-light)', textAlign: 'center' }}>
-            <a href="/login" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>Masuk</a> untuk ikut berdiskusi.
+          <div
+            className="card"
+            style={{
+              marginBottom: 12,
+              color: "var(--text-light)",
+              textAlign: "center",
+            }}
+          >
+            <a
+              href="/login"
+              style={{ fontWeight: "bold", color: "var(--primary)" }}
+            >
+              Masuk
+            </a>{" "}
+            untuk ikut berdiskusi.
+          </div>
+        )}
+
+        {comments.length > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                fontWeight: "bold",
+                color: "var(--text-main)",
+              }}
+            >
+              Urutkan Komentar:
+            </label>
+            <select
+              value={commentSort}
+              onChange={(e) => setCommentSort(e.target.value)}
+              style={{
+                padding: "10px 12px",
+                borderRadius: "12px",
+                border: "2px solid var(--border-color)",
+                backgroundColor: "var(--bg-main)",
+                color: "var(--text-main)",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "border-color 0.2s",
+              }}
+            >
+              <option value="newest">Terbaru</option>
+              <option value="reactions">Reaksi Tertinggi</option>
+            </select>
           </div>
         )}
 
@@ -227,16 +301,22 @@ export const BacaanDetailPage = () => {
           {comments.length === 0 && (
             <div className="card">Belum ada komentar.</div>
           )}
-          {comments.map((c) => (
-            <CommentItem
-              key={c.commentId || c.id}
-              comment={c}
-              currentUserId={user?.id}
-              onUpdate={handleCommentUpdate}
-              onDelete={handleCommentDelete}
-              onRefresh={loadComments}
-            />
-          ))}
+          {(() => {
+            const sortedComments =
+              commentSort === "reactions"
+                ? sortCommentsByReactionScore(comments)
+                : sortCommentsByNewest(comments);
+            return sortedComments.map((c) => (
+              <CommentItem
+                key={c.commentId || c.id}
+                comment={c}
+                currentUserId={user?.id}
+                onUpdate={handleCommentUpdate}
+                onDelete={handleCommentDelete}
+                onRefresh={loadComments}
+              />
+            ));
+          })()}
         </div>
       </div>
 
@@ -319,80 +399,98 @@ export const BacaanDetailPage = () => {
         </div>
       )}
 
-      {mode === "DONE" && (() => {
-        const total = questions.length;
-        const pct = total > 0 && score !== null ? (score / total) * 100 : null;
-        const isPerfect = pct === 100;
-        const isGood = pct !== null && pct >= 60;
-        const emoji = isPerfect ? "🎉" : isGood ? "😊" : pct !== null ? "📚" : "✅";
-        const title = isPerfect
-          ? "Sempurna!"
-          : isGood
-          ? "Bagus!"
-          : pct !== null
-          ? "Terus Berlatih!"
-          : "Selesai!";
-        const subtitle =
-          pct !== null && pct < 60
-            ? "Jangan menyerah! Baca ulang materinya dan coba lagi di bacaan lain."
-            : "Kamu telah menyelesaikan modul bacaan ini.";
-        const scoreColor =
-          pct === null ? "var(--primary)" : isPerfect ? "#58cc02" : isGood ? "var(--primary)" : "#ef4444";
+      {mode === "DONE" &&
+        (() => {
+          const total = questions.length;
+          const pct =
+            total > 0 && score !== null ? (score / total) * 100 : null;
+          const isPerfect = pct === 100;
+          const isGood = pct !== null && pct >= 60;
+          const emoji = isPerfect
+            ? "🎉"
+            : isGood
+              ? "😊"
+              : pct !== null
+                ? "📚"
+                : "✅";
+          const title = isPerfect
+            ? "Sempurna!"
+            : isGood
+              ? "Bagus!"
+              : pct !== null
+                ? "Terus Berlatih!"
+                : "Selesai!";
+          const subtitle =
+            pct !== null && pct < 60
+              ? "Jangan menyerah! Baca ulang materinya dan coba lagi di bacaan lain."
+              : "Kamu telah menyelesaikan modul bacaan ini.";
+          const scoreColor =
+            pct === null
+              ? "var(--primary)"
+              : isPerfect
+                ? "var(--primary)"
+                : isGood
+                  ? "var(--primary)"
+                  : "var(--danger)";
 
-        return (
-          <div
-            className="card"
-            style={{ textAlign: "center", padding: "48px 24px" }}
-          >
-            <div style={{ fontSize: "64px", marginBottom: "16px" }}>{emoji}</div>
-            <h1 className="page-title" style={{ color: scoreColor }}>{title}</h1>
-            <p className="page-subtitle">{subtitle}</p>
-
-            {score !== null && total > 0 && (
-              <div
-                style={{
-                  margin: "24px 0",
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: scoreColor,
-                }}
-              >
-                Skor Kamu: {score} / {total} Benar
+          return (
+            <div
+              className="card"
+              style={{ textAlign: "center", padding: "48px 24px" }}
+            >
+              <div style={{ fontSize: "64px", marginBottom: "16px" }}>
+                {emoji}
               </div>
-            )}
+              <h1 className="page-title" style={{ color: scoreColor }}>
+                {title}
+              </h1>
+              <p className="page-subtitle">{subtitle}</p>
 
-            {pct !== null && (
-              <div
-                style={{
-                  margin: "0 auto 24px",
-                  width: "200px",
-                  height: "8px",
-                  backgroundColor: "var(--border-light)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                }}
-              >
+              {score !== null && total > 0 && (
                 <div
                   style={{
-                    width: `${pct}%`,
-                    height: "100%",
-                    backgroundColor: scoreColor,
-                    borderRadius: "4px",
-                    transition: "width 0.5s ease",
+                    margin: "24px 0",
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                    color: scoreColor,
                   }}
-                />
-              </div>
-            )}
+                >
+                  Skor Kamu: {score} / {total} Benar
+                </div>
+              )}
 
-            <button
-              onClick={() => navigate("/learning")}
-              className="btn btn-secondary"
-            >
-              KEMBALI KE MENU BELAJAR
-            </button>
-          </div>
-        );
-      })()}
+              {pct !== null && (
+                <div
+                  style={{
+                    margin: "0 auto 24px",
+                    width: "200px",
+                    height: "8px",
+                    backgroundColor: "var(--border-light)",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${pct}%`,
+                      height: "100%",
+                      backgroundColor: scoreColor,
+                      borderRadius: "4px",
+                      transition: "width 0.5s ease",
+                    }}
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={() => navigate("/learning")}
+                className="btn btn-secondary"
+              >
+                KEMBALI KE MENU BELAJAR
+              </button>
+            </div>
+          );
+        })()}
     </div>
   );
 };
