@@ -18,6 +18,8 @@ export const LearningAdminPage = () => {
   const [form, setForm] = useState(emptyBacaan);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState(null);
+  const [pageError, setPageError] = useState(null);
 
   const [expandedId, setExpandedId] = useState(null);
   const [questions, setQuestions] = useState({});
@@ -31,10 +33,11 @@ export const LearningAdminPage = () => {
   const loadBacaan = async () => {
     try {
       setLoading(true);
+      setPageError(null);
       const data = await learningService.listBacaan();
       setBacaanList(data);
     } catch (err) {
-      alert(err.message);
+      setPageError(err.message || 'Gagal memuat daftar bacaan.');
     } finally {
       setLoading(false);
     }
@@ -42,7 +45,11 @@ export const LearningAdminPage = () => {
 
   const handleSaveBacaan = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.content.trim()) return;
+    setFormError(null);
+    if (!form.title.trim() || !form.content.trim()) {
+      setFormError('Judul dan konten bacaan tidak boleh kosong.');
+      return;
+    }
     setSaving(true);
     try {
       if (editingId) {
@@ -54,7 +61,7 @@ export const LearningAdminPage = () => {
       setEditingId(null);
       await loadBacaan();
     } catch (err) {
-      alert(err.message);
+      setFormError(err.message || 'Gagal menyimpan bacaan. Coba lagi.');
     } finally {
       setSaving(false);
     }
@@ -72,7 +79,7 @@ export const LearningAdminPage = () => {
       await learningService.deleteBacaan(id);
       await loadBacaan();
     } catch (err) {
-      alert(err.message);
+      setPageError(err.message || 'Gagal menghapus bacaan.');
     }
   };
 
@@ -85,7 +92,7 @@ export const LearningAdminPage = () => {
         setQuestions((prev) => ({ ...prev, [bacaanId]: qs }));
         setQuestionForm((prev) => ({ ...prev, [bacaanId]: emptyQuestion }));
       } catch (err) {
-        alert(err.message);
+        setPageError(err.message || 'Gagal memuat soal.');
       }
     }
   };
@@ -100,7 +107,7 @@ export const LearningAdminPage = () => {
       setQuestions((prev) => ({ ...prev, [bacaanId]: updated }));
       setQuestionForm((prev) => ({ ...prev, [bacaanId]: emptyQuestion }));
     } catch (err) {
-      alert(err.message);
+      setPageError(err.message || 'Gagal menambah soal.');
     }
   };
 
@@ -110,7 +117,7 @@ export const LearningAdminPage = () => {
       await learningService.deleteQuestion(questionId);
       setQuestions((prev) => ({ ...prev, [bacaanId]: prev[bacaanId].filter((q) => q.id !== questionId) }));
     } catch (err) {
-      alert(err.message);
+      setPageError(err.message || 'Gagal menghapus soal.');
     }
   };
 
@@ -118,6 +125,13 @@ export const LearningAdminPage = () => {
     <div className="page-container">
       <h1 className="page-title">Admin — Kelola Bacaan</h1>
       <p className="page-subtitle">Buat, edit, dan hapus konten pembelajaran beserta soal kuisnya.</p>
+
+      {pageError && (
+        <div className="alert alert-error" style={{ marginBottom: 16 }}>
+          <span>{pageError}</span>
+          <button type="button" onClick={() => setPageError(null)} style={{ marginLeft: 8, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+        </div>
+      )}
 
       {/* Form Buat/Edit Bacaan */}
       <form onSubmit={handleSaveBacaan} className="card" style={{ marginBottom: 32, backgroundColor: editingId ? '#fffbeb' : '#f0f9ff', borderColor: editingId ? '#f59e0b' : 'var(--secondary)' }}>
@@ -138,9 +152,14 @@ export const LearningAdminPage = () => {
           <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 6 }}>Konten</label>
           <textarea value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} placeholder="Isi bacaan..." rows={6} required style={{ width: '100%', resize: 'vertical', boxSizing: 'border-box' }} />
         </div>
+        {formError && (
+          <div className="alert alert-error" style={{ marginBottom: 12 }}>
+            <span>{formError}</span>
+          </div>
+        )}
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Menyimpan...' : editingId ? 'SIMPAN PERUBAHAN' : 'BUAT BACAAN'}</button>
-          {editingId && <button type="button" className="btn btn-outline" onClick={() => { setForm(emptyBacaan); setEditingId(null); }}>BATAL</button>}
+          {editingId && <button type="button" className="btn btn-outline" onClick={() => { setForm(emptyBacaan); setEditingId(null); setFormError(null); }}>BATAL</button>}
         </div>
       </form>
 

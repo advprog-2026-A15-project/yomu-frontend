@@ -51,8 +51,9 @@ export const ClanPage = () => {
 
   const handleCreateClan = async (e) => {
     e.preventDefault();
+    if (!user) { alert('Silakan masuk terlebih dahulu.'); return; }
     if (!newClanName.trim()) return;
-    
+
     try {
       await clanService.createClan({
         name: newClanName,
@@ -62,15 +63,32 @@ export const ClanPage = () => {
       alert('Clan berhasil dibuat!');
       setShowCreate(false);
       loadLeaderboard();
+      loadMembership();
     } catch (error) {
       alert(error.message);
     }
   };
 
   const handleJoinClan = async (clanId) => {
+    if (!user) { alert('Silakan masuk terlebih dahulu untuk bergabung ke clan.'); return; }
     try {
       await clanService.joinClan(clanId, user.id);
       alert('Permintaan bergabung telah dikirim!');
+      loadMembership();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleLeaveClan = async () => {
+    const isPending = membership?.status === 'PENDING';
+    const label = isPending ? 'Batalkan permintaan bergabung?' : `Keluar dari clan "${myClan?.name}"?`;
+    if (!window.confirm(label)) return;
+    try {
+      await clanService.leaveClan();
+      setMembership(null);
+      setMyClan(null);
+      loadLeaderboard();
     } catch (error) {
       alert(error.message);
     }
@@ -93,9 +111,28 @@ export const ClanPage = () => {
           <h1 className="page-title">Liga Yomu</h1>
           <p className="page-subtitle">Berkompetisi bersama clanmu dan raih divisi tertinggi!</p>
         </div>
-        <button onClick={() => setShowCreate(!showCreate)} className="btn btn-secondary">
-          {showCreate ? 'BATAL' : '+ BUAT CLAN'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {user?.role === 'ADMIN' && (
+            <button
+              onClick={async () => {
+                try {
+                  await clanService.recalculateTiers();
+                  await loadLeaderboard();
+                  alert('Tier semua clan berhasil diperbarui!');
+                } catch (e) {
+                  alert(e.message);
+                }
+              }}
+              className="btn btn-outline"
+              style={{ fontSize: '13px' }}
+            >
+              ⚙ RECALCULATE TIER
+            </button>
+          )}
+          <button onClick={() => setShowCreate(!showCreate)} className="btn btn-secondary">
+            {showCreate ? 'BATAL' : '+ BUAT CLAN'}
+          </button>
+        </div>
       </div>
 
       {/* Banner status keanggotaan */}
@@ -116,11 +153,22 @@ export const ClanPage = () => {
                 : `Permintaanmu bergabung ke clan "${myClan.name}" sedang menunggu persetujuan ketua.`}
             </div>
           </div>
-          {membership.status === 'ACCEPTED' && myClan.leaderId === user?.id && (
-            <Link to={`/clan/${myClan.id}/manage`} className="btn btn-secondary" style={{ fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap' }}>
-              KELOLA CLAN
-            </Link>
-          )}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {membership.status === 'ACCEPTED' && myClan.leaderId === user?.id && (
+              <Link to={`/clan/${myClan.id}/manage`} className="btn btn-secondary" style={{ fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap' }}>
+                KELOLA CLAN
+              </Link>
+            )}
+            {myClan.leaderId !== user?.id && (
+              <button
+                onClick={handleLeaveClan}
+                className="btn btn-outline"
+                style={{ fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+              >
+                {membership.status === 'PENDING' ? 'BATALKAN' : 'KELUAR'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

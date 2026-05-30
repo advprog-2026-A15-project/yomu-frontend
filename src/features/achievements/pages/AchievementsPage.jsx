@@ -9,6 +9,7 @@ import {
   Medal,
   RefreshCw,
   ShieldCheck,
+  Star,
   Target,
   Trophy,
   Star,
@@ -46,17 +47,26 @@ const progressPercent = (progress, target) => {
 };
 
 const fetchDashboard = async (targetUserId) => {
-  const [achievementData, missionData] = await Promise.all([
+  const [achievementData, missionData, totalPoints, membership] = await Promise.all([
     achievementService.listAchievements(targetUserId),
     achievementService.listDailyMissions(targetUserId),
+    achievementService.getTotalClaimedPoints(targetUserId),
+    clanService.getMembership(targetUserId).catch(() => null),
   ]);
-  return { achievementData, missionData };
+  return {
+    achievementData,
+    missionData,
+    totalPoints,
+    personalScore: membership?.personalScore ?? null,
+  };
 };
 
 export const AchievementsPage = () => {
   const { user, isLoading: authLoading } = useAuth();
   const [achievements, setAchievements] = useState([]);
   const [dailyMissions, setDailyMissions] = useState([]);
+  const [totalClaimedPoints, setTotalClaimedPoints] = useState(0);
+  const [personalScore, setPersonalScore] = useState(null);
   const [selectedMetric, setSelectedMetric] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const [claimingMissionId, setClaimingMissionId] = useState(null);
@@ -77,7 +87,8 @@ export const AchievementsPage = () => {
       const m = await clanService.getMembership(userId).catch(() => null);
       setAchievements(dashboardData.achievementData);
       setDailyMissions(dashboardData.missionData);
-      setMembership(m);
+      setTotalClaimedPoints(dashboardData.totalPoints);
+      setPersonalScore(dashboardData.personalScore);
     } catch (loadError) {
       setError(loadError.message);
     } finally {
@@ -99,7 +110,8 @@ export const AchievementsPage = () => {
         if (!shouldIgnore) {
           setAchievements(dashboardData.achievementData);
           setDailyMissions(dashboardData.missionData);
-          setMembership(m);
+          setTotalClaimedPoints(dashboardData.totalPoints);
+          setPersonalScore(dashboardData.personalScore);
           setError(null);
         }
       } catch (loadError) {
@@ -141,11 +153,11 @@ export const AchievementsPage = () => {
     };
   }, [achievements, dailyMissions]);
 
-  const handlePin = async (achievementId) => {
+  const handlePin = async (achievementId, currentlyPinned) => {
     if (!userId) return;
     try {
-      await achievementService.pinAchievement(achievementId, userId);
-      setSuccessMessage('Achievement berhasil di-pin.');
+      await achievementService.pinAchievement(achievementId, userId, !currentlyPinned);
+      setSuccessMessage(currentlyPinned ? 'Achievement di-unpin.' : 'Achievement berhasil di-pin.');
       await loadDashboard();
     } catch (pinError) {
       setError(pinError.message);
@@ -222,22 +234,21 @@ export const AchievementsPage = () => {
           <span>{summary.claimableMissions}</span>
           <p>Reward siap klaim</p>
         </div>
-        <div className="achievement-summary-item" style={{ borderColor: 'var(--warning)', backgroundColor: 'rgba(255, 200, 0, 0.05)' }}>
-          <Star size={22} color="var(--warning)" />
-          <span style={{ color: 'var(--warning)' }}>{membership?.personalScore ?? 0}</span>
-          <p style={{ color: 'var(--text-light)' }}>Total skor (clan)</p>
+        <div className="achievement-summary-item achievement-summary-item--score">
+          <Star size={22} />
+          <span>{personalScore !== null ? personalScore : totalClaimedPoints}</span>
+          <p>{personalScore !== null ? 'Total skor (clan)' : 'Total skor'}</p>
         </div>
       </section>
 
       <section className="achievement-section">
         <div className="achievement-section-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <h2>Daily Mission</h2>
-          {membership && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', border: '1px solid var(--warning)', borderRadius: '20px', backgroundColor: 'rgba(255, 200, 0, 0.05)' }}>
-              <Star size={16} color="var(--warning)" />
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--warning)' }}>Total Skor: {membership.personalScore ?? 0} poin <span style={{ fontWeight: 'normal', opacity: 0.8 }}>(di clan)</span></span>
-            </div>
-          )}
+          <div className="mission-score-badge">
+            <Star size={14} />
+            Total Skor: {personalScore !== null ? personalScore : totalClaimedPoints} poin
+            {personalScore !== null && <span style={{ fontSize: 11, opacity: 0.75, marginLeft: 4 }}>(di clan)</span>}
+          </div>
         </div>
 
         {isLoading && dailyMissions.length === 0 ? (
@@ -350,8 +361,8 @@ export const AchievementsPage = () => {
                       {achievement.unlocked && (
                         <button
                           type="button"
-                          onClick={() => handlePin(achievement.achievementId)}
-                          title={achievement.pinned ? 'Di-pin' : 'Pin achievement ini'}
+                          onClick={() => handlePin(achievement.achievementId, achievement.pinned)}
+                          title={achievement.pinned ? 'Di-pin (klik untuk unpin)' : 'Pin achievement ini'}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, opacity: achievement.pinned ? 1 : 0.4 }}
                         >
                           📌

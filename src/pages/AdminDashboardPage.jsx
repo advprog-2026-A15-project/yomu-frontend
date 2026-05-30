@@ -413,16 +413,19 @@ export const AdminDashboardPage = () => {
               </h3>
               <ul style={{ paddingLeft: 20, margin: 0, display: 'flex', flexDirection: 'column', gap: 12, fontSize: '14px', color: 'var(--text-main)', lineHeight: 1.6 }}>
                 <li>
-                  <strong>Divisi Bronze (Divisi Dasar)</strong>: Peringkat didasarkan pada jumlah total skor (sum) dari seluruh aktivitas Clan.
+                  <strong>Divisi Bronze (Divisi Dasar)</strong>: Skor dihitung sebagai jumlah total (sum) skor personal seluruh anggota aktif.
                 </li>
                 <li>
-                  <strong>Divisi Silver & Gold (Divisi Menengah)</strong>: Peringkat dihitung menggunakan rumus gabungan aktivitas. Top 30% Clan dipromosikan ke divisi atasnya, sedangkan bottom 20% Clan didegradasi ke divisi bawahnya.
+                  <strong>Divisi Silver & Gold (Divisi Menengah)</strong>: Skor dihitung menggunakan rata-rata tertimbang. <strong>Top 25%</strong> Clan dipromosikan ke divisi atasnya; <strong>Bottom 25%</strong> Clan didegradasi ke divisi bawahnya.
                 </li>
                 <li>
-                  <strong>Divisi Diamond (Divisi Tertinggi)</strong>: Peringkat dihitung menggunakan rata-rata tertimbang (weighted average). Bottom 20% Clan diturunkan kembali ke Divisi Gold.
+                  <strong>Divisi Diamond (Divisi Tertinggi)</strong>: Skor dihitung menggunakan rata-rata tertimbang dengan penalti. <strong>Bottom 25%</strong> Clan diturunkan kembali ke Divisi Gold.
                 </li>
                 <li>
-                  <strong>Reset Skor</strong>: Setelah promosi/degradasi diproses, semua skor personal anggota diatur kembali menjadi 0 untuk memulai musim baru.
+                  <strong>Buff & Debuff</strong>: Clan mendapat buff ×1.2 jika ≥50% anggota menyelesaikan daily mission, dan debuff ×0.8 jika akurasi rata-rata kuis &lt;50%.
+                </li>
+                <li>
+                  <strong>Reset Musim</strong>: Setelah promosi/degradasi, semua skor personal anggota dan data aktivitas harian direset ke 0 untuk musim baru.
                 </li>
               </ul>
             </div>

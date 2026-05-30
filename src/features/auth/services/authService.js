@@ -177,7 +177,7 @@ export const authService = {
           if (errorData && errorData.message) {
             errorMessage = errorData.message;
           }
-        } catch (e) {
+        } catch {
           // Fallback to default message
         }
         throw new Error(errorMessage);

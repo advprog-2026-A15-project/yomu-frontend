@@ -43,6 +43,13 @@ export const LeagueStandingsPage = () => {
     }
   };
 
+  const TIER_INFO = {
+    DIAMOND: { label: 'Diamond', range: '600+ poin', min: 600, max: null },
+    GOLD:    { label: 'Gold',    range: '300 – 599 poin', min: 300, max: 599 },
+    SILVER:  { label: 'Silver',  range: '100 – 299 poin', min: 100, max: 299 },
+    BRONZE:  { label: 'Bronze',  range: '0 – 99 poin',   min: 0,   max: 99  },
+  };
+
   // Group clans by tier
   const tiers = ['DIAMOND', 'GOLD', 'SILVER', 'BRONZE'];
   const clansByTier = tiers.reduce((acc, tier) => {
@@ -57,30 +64,30 @@ export const LeagueStandingsPage = () => {
         <p className="page-subtitle" style={{ fontSize: '18px' }}>Pantau peringkat clan di setiap divisi kompetisi</p>
       </div>
 
+      {/* Panel info threshold divisi */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '16px',
-        marginBottom: '40px'
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '12px',
+        marginBottom: '32px',
       }}>
-        {[
-          { tier: 'Diamond', points: '600+ poin', color: '#b9f2ff', icon: <Trophy size={20} color="#00bfff" /> },
-          { tier: 'Gold', points: '300 - 599 poin', color: '#ffd700', icon: <Award size={20} color="#ffd700" /> },
-          { tier: 'Silver', points: '100 - 299 poin', color: '#c0c0c0', icon: <Medal size={20} color="#c0c0c0" /> },
-          { tier: 'Bronze', points: '0 - 99 poin', color: '#cd7f32', icon: <Star size={20} color="#cd7f32" /> }
-        ].map(t => (
-          <div key={t.tier} style={{
-            padding: '16px',
-            borderRadius: '12px',
-            border: `1px solid ${t.color}`,
-            backgroundColor: 'var(--bg-main)',
-            textAlign: 'center'
+        {tiers.map((tier) => (
+          <div key={tier} style={{
+            border: `2px solid ${getTierColor(tier)}`,
+            borderRadius: '10px',
+            padding: '14px 16px',
+            textAlign: 'center',
+            background: 'var(--bg-main)',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              {t.icon}
-              <span style={{ fontWeight: 'bold', color: t.color }}>{t.tier}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '6px' }}>
+              {getTierIcon(tier)}
+              <span style={{ fontWeight: '800', fontSize: '15px', color: getTierColor(tier) }}>
+                {TIER_INFO[tier].label}
+              </span>
             </div>
-            <div style={{ fontSize: '14px', color: 'var(--text-light)' }}>{t.points}</div>
+            <div style={{ fontSize: '13px', color: 'var(--text-light)', fontWeight: '600' }}>
+              {TIER_INFO[tier].range}
+            </div>
           </div>
         ))}
       </div>
@@ -100,18 +107,24 @@ export const LeagueStandingsPage = () => {
 
             return (
               <div key={tier} className="card" style={{ padding: 0, overflow: 'hidden', borderTop: `4px solid ${getTierColor(tier)}` }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '12px', 
-                  padding: '16px 24px', 
-                  backgroundColor: 'var(--bg-page)', 
-                  borderBottom: '2px solid var(--border-color)' 
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px 24px',
+                  backgroundColor: 'var(--bg-page)',
+                  borderBottom: '2px solid var(--border-color)',
+                  flexWrap: 'wrap',
                 }}>
                   {getTierIcon(tier)}
-                  <h2 style={{ margin: 0, fontSize: '20px', textTransform: 'capitalize' }}>
-                    Divisi {tier.toLowerCase()}
-                  </h2>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: '20px', textTransform: 'capitalize' }}>
+                      Divisi {TIER_INFO[tier].label}
+                    </h2>
+                    <span style={{ fontSize: '13px', color: getTierColor(tier), fontWeight: '700' }}>
+                      {TIER_INFO[tier].range}
+                    </span>
+                  </div>
                   <span style={{ marginLeft: 'auto', fontSize: '14px', color: 'var(--text-light)', fontWeight: 'bold' }}>
                     {tierClans.length} Clan
                   </span>
