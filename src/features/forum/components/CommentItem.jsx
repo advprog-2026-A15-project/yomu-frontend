@@ -329,14 +329,14 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
             onClick={() => doReaction("upvote")}
             disabled={saving}
           >
-            👍 {counts.upvotes}
+            ⬆️ {counts.upvotes}
           </button>
           <button
             className="icon-btn"
             onClick={() => doReaction("downvote")}
             disabled={saving}
           >
-            👎 {counts.downvotes}
+            ⬇️ {counts.downvotes}
           </button>
           <button
             className="icon-btn"
