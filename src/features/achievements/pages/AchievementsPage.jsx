@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -12,30 +12,29 @@ import {
   Star,
   Target,
   Trophy,
-  Star,
-} from 'lucide-react';
-import { useAuth } from '../../auth';
-import { achievementService } from '../services/achievementService';
-import { clanService } from '../../clan/services/clanService';
-import '../styles/achievements.css';
+} from "lucide-react";
+import { useAuth } from "../../auth";
+import { achievementService } from "../services/achievementService";
+import { clanService } from "../../clan/services/clanService";
+import "../styles/achievements.css";
 
 const metricLabels = {
-  READING_COMPLETED: 'Bacaan',
-  QUIZ_COMPLETED: 'Kuis',
-  LEAGUE_ACTIVITY: 'Liga',
-  COMMENT_CREATED: 'Diskusi',
-  CLAN_PROMOTED: 'Promosi Clan',
-  CLAN_REACHED_DIAMOND: 'Diamond',
+  READING_COMPLETED: "Bacaan",
+  QUIZ_COMPLETED: "Kuis",
+  LEAGUE_ACTIVITY: "Liga",
+  COMMENT_CREATED: "Diskusi",
+  CLAN_PROMOTED: "Promosi Clan",
+  CLAN_REACHED_DIAMOND: "Diamond",
 };
 
 const formatDate = (value) => {
   if (!value) {
-    return '-';
+    return "-";
   }
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   }).format(new Date(value));
 };
 
@@ -47,12 +46,13 @@ const progressPercent = (progress, target) => {
 };
 
 const fetchDashboard = async (targetUserId) => {
-  const [achievementData, missionData, totalPoints, membership] = await Promise.all([
-    achievementService.listAchievements(targetUserId),
-    achievementService.listDailyMissions(targetUserId),
-    achievementService.getTotalClaimedPoints(targetUserId),
-    clanService.getMembership(targetUserId).catch(() => null),
-  ]);
+  const [achievementData, missionData, totalPoints, membership] =
+    await Promise.all([
+      achievementService.listAchievements(targetUserId),
+      achievementService.listDailyMissions(targetUserId),
+      achievementService.getTotalClaimedPoints(targetUserId),
+      clanService.getMembership(targetUserId).catch(() => null),
+    ]);
   return {
     achievementData,
     missionData,
@@ -67,7 +67,7 @@ export const AchievementsPage = () => {
   const [dailyMissions, setDailyMissions] = useState([]);
   const [totalClaimedPoints, setTotalClaimedPoints] = useState(0);
   const [personalScore, setPersonalScore] = useState(null);
-  const [selectedMetric, setSelectedMetric] = useState('ALL');
+  const [selectedMetric, setSelectedMetric] = useState("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [claimingMissionId, setClaimingMissionId] = useState(null);
   const [error, setError] = useState(null);
@@ -133,16 +133,24 @@ export const AchievementsPage = () => {
   }, [userId]);
 
   const filteredAchievements = useMemo(() => {
-    if (selectedMetric === 'ALL') {
+    if (selectedMetric === "ALL") {
       return achievements;
     }
-    return achievements.filter((achievement) => achievement.metric === selectedMetric);
+    return achievements.filter(
+      (achievement) => achievement.metric === selectedMetric,
+    );
   }, [achievements, selectedMetric]);
 
   const summary = useMemo(() => {
-    const unlockedCount = achievements.filter((achievement) => achievement.unlocked).length;
-    const completedMissions = dailyMissions.filter((mission) => mission.completed).length;
-    const claimableMissions = dailyMissions.filter((mission) => mission.completed && !mission.claimed).length;
+    const unlockedCount = achievements.filter(
+      (achievement) => achievement.unlocked,
+    ).length;
+    const completedMissions = dailyMissions.filter(
+      (mission) => mission.completed,
+    ).length;
+    const claimableMissions = dailyMissions.filter(
+      (mission) => mission.completed && !mission.claimed,
+    ).length;
 
     return {
       unlockedCount,
@@ -156,8 +164,16 @@ export const AchievementsPage = () => {
   const handlePin = async (achievementId, currentlyPinned) => {
     if (!userId) return;
     try {
-      await achievementService.pinAchievement(achievementId, userId, !currentlyPinned);
-      setSuccessMessage(currentlyPinned ? 'Achievement di-unpin.' : 'Achievement berhasil di-pin.');
+      await achievementService.pinAchievement(
+        achievementId,
+        userId,
+        !currentlyPinned,
+      );
+      setSuccessMessage(
+        currentlyPinned
+          ? "Achievement di-unpin."
+          : "Achievement berhasil di-pin.",
+      );
       await loadDashboard();
     } catch (pinError) {
       setError(pinError.message);
@@ -173,7 +189,10 @@ export const AchievementsPage = () => {
     setError(null);
     setSuccessMessage(null);
     try {
-      const result = await achievementService.claimDailyMissionReward(missionId, userId);
+      const result = await achievementService.claimDailyMissionReward(
+        missionId,
+        userId,
+      );
       setSuccessMessage(`Reward ${result.rewardPoints} poin berhasil diklaim.`);
       await loadDashboard();
     } catch (claimError) {
@@ -196,24 +215,39 @@ export const AchievementsPage = () => {
             Beranda
           </Link>
           <h1>Achievement</h1>
-          <p>{user?.displayName || user?.username || 'Pelajar'}</p>
+          <p>{user?.displayName || user?.username || "Pelajar"}</p>
         </div>
         <div className="achievement-actions">
-          {user?.role === 'ADMIN' && (
+          {user?.role === "ADMIN" && (
             <Link to="/achievements/admin" className="achievement-icon-button">
               <ShieldCheck size={18} />
               Admin
             </Link>
           )}
-          <button className="achievement-icon-button" type="button" onClick={loadDashboard} disabled={isLoading}>
-            {isLoading ? <Loader2 className="achievement-spin" size={18} /> : <RefreshCw size={18} />}
+          <button
+            className="achievement-icon-button"
+            type="button"
+            onClick={loadDashboard}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="achievement-spin" size={18} />
+            ) : (
+              <RefreshCw size={18} />
+            )}
             Refresh
           </button>
         </div>
       </header>
 
       {(error || successMessage) && (
-        <div className={error ? 'achievement-alert achievement-alert-error' : 'achievement-alert achievement-alert-success'}>
+        <div
+          className={
+            error
+              ? "achievement-alert achievement-alert-error"
+              : "achievement-alert achievement-alert-success"
+          }
+        >
           {error || successMessage}
         </div>
       )}
@@ -221,12 +255,16 @@ export const AchievementsPage = () => {
       <section className="achievement-summary-grid">
         <div className="achievement-summary-item">
           <Trophy size={22} />
-          <span>{summary.unlockedCount}/{summary.achievementCount}</span>
+          <span>
+            {summary.unlockedCount}/{summary.achievementCount}
+          </span>
           <p>Achievement terbuka</p>
         </div>
         <div className="achievement-summary-item">
           <Target size={22} />
-          <span>{summary.completedMissions}/{summary.missionCount}</span>
+          <span>
+            {summary.completedMissions}/{summary.missionCount}
+          </span>
           <p>Daily mission selesai</p>
         </div>
         <div className="achievement-summary-item">
@@ -236,18 +274,33 @@ export const AchievementsPage = () => {
         </div>
         <div className="achievement-summary-item achievement-summary-item--score">
           <Star size={22} />
-          <span>{personalScore !== null ? personalScore : totalClaimedPoints}</span>
-          <p>{personalScore !== null ? 'Total skor (clan)' : 'Total skor'}</p>
+          <span>
+            {personalScore !== null ? personalScore : totalClaimedPoints}
+          </span>
+          <p>{personalScore !== null ? "Total skor (clan)" : "Total skor"}</p>
         </div>
       </section>
 
       <section className="achievement-section">
-        <div className="achievement-section-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div
+          className="achievement-section-heading"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
           <h2>Daily Mission</h2>
           <div className="mission-score-badge">
             <Star size={14} />
-            Total Skor: {personalScore !== null ? personalScore : totalClaimedPoints} poin
-            {personalScore !== null && <span style={{ fontSize: 11, opacity: 0.75, marginLeft: 4 }}>(di clan)</span>}
+            Total Skor:{" "}
+            {personalScore !== null ? personalScore : totalClaimedPoints} poin
+            {personalScore !== null && (
+              <span style={{ fontSize: 11, opacity: 0.75, marginLeft: 4 }}>
+                (di clan)
+              </span>
+            )}
           </div>
         </div>
 
@@ -257,27 +310,40 @@ export const AchievementsPage = () => {
             Memuat daily mission
           </div>
         ) : dailyMissions.length === 0 ? (
-          <div className="achievement-empty-state">Belum ada daily mission aktif.</div>
+          <div className="achievement-empty-state">
+            Belum ada daily mission aktif.
+          </div>
         ) : (
           <div className="daily-mission-list">
             {dailyMissions.map((mission) => {
-              const percent = progressPercent(mission.progress, mission.targetCount);
+              const percent = progressPercent(
+                mission.progress,
+                mission.targetCount,
+              );
               return (
                 <article className="daily-mission-item" key={mission.missionId}>
                   <div className="mission-icon">
-                    {mission.claimed ? <CheckCircle2 size={22} /> : <Target size={22} />}
+                    {mission.claimed ? (
+                      <CheckCircle2 size={22} />
+                    ) : (
+                      <Target size={22} />
+                    )}
                   </div>
                   <div className="mission-content">
                     <div className="mission-title-row">
                       <h3>{mission.name}</h3>
-                      <span>{metricLabels[mission.metric] || mission.metric}</span>
+                      <span>
+                        {metricLabels[mission.metric] || mission.metric}
+                      </span>
                     </div>
                     {mission.description && <p>{mission.description}</p>}
                     <div className="achievement-progress-track">
                       <span style={{ width: `${percent}%` }} />
                     </div>
                     <div className="mission-meta">
-                      <span>{mission.progress}/{mission.targetCount}</span>
+                      <span>
+                        {mission.progress}/{mission.targetCount}
+                      </span>
                       <span>{mission.rewardPoints} poin</span>
                       <span>{formatDate(mission.activeUntil)}</span>
                     </div>
@@ -285,7 +351,11 @@ export const AchievementsPage = () => {
                   <button
                     className="achievement-claim-button"
                     type="button"
-                    disabled={!mission.completed || mission.claimed || claimingMissionId === mission.missionId}
+                    disabled={
+                      !mission.completed ||
+                      mission.claimed ||
+                      claimingMissionId === mission.missionId
+                    }
                     onClick={() => handleClaim(mission.missionId)}
                   >
                     {claimingMissionId === mission.missionId ? (
@@ -293,7 +363,7 @@ export const AchievementsPage = () => {
                     ) : (
                       <Gift size={18} />
                     )}
-                    {mission.claimed ? 'Diklaim' : 'Klaim'}
+                    {mission.claimed ? "Diklaim" : "Klaim"}
                   </button>
                 </article>
               );
@@ -307,21 +377,21 @@ export const AchievementsPage = () => {
           <h2>Daftar Achievement</h2>
           <div className="achievement-filter" aria-label="Filter achievement">
             {[
-              'ALL',
-              'READING_COMPLETED',
-              'QUIZ_COMPLETED',
-              'LEAGUE_ACTIVITY',
-              'COMMENT_CREATED',
-              'CLAN_PROMOTED',
-              'CLAN_REACHED_DIAMOND',
+              "ALL",
+              "READING_COMPLETED",
+              "QUIZ_COMPLETED",
+              "LEAGUE_ACTIVITY",
+              "COMMENT_CREATED",
+              "CLAN_PROMOTED",
+              "CLAN_REACHED_DIAMOND",
             ].map((metric) => (
               <button
                 key={metric}
                 type="button"
-                className={selectedMetric === metric ? 'is-active' : ''}
+                className={selectedMetric === metric ? "is-active" : ""}
                 onClick={() => setSelectedMetric(metric)}
               >
-                {metric === 'ALL' ? 'Semua' : metricLabels[metric]}
+                {metric === "ALL" ? "Semua" : metricLabels[metric]}
               </button>
             ))}
           </div>
@@ -333,37 +403,76 @@ export const AchievementsPage = () => {
             Memuat achievement
           </div>
         ) : filteredAchievements.length === 0 ? (
-          <div className="achievement-empty-state">Achievement belum tersedia.</div>
+          <div className="achievement-empty-state">
+            Achievement belum tersedia.
+          </div>
         ) : (
           <div className="achievement-grid">
             {filteredAchievements.map((achievement) => {
-              const percent = progressPercent(achievement.progress, achievement.milestone);
+              const percent = progressPercent(
+                achievement.progress,
+                achievement.milestone,
+              );
               return (
                 <article
-                  className={achievement.unlocked ? 'achievement-card is-unlocked' : 'achievement-card'}
+                  className={
+                    achievement.unlocked
+                      ? "achievement-card is-unlocked"
+                      : "achievement-card"
+                  }
                   key={achievement.achievementId}
                 >
                   <div className="achievement-card-icon">
-                    {achievement.unlocked ? <Medal size={22} /> : <Lock size={22} />}
+                    {achievement.unlocked ? (
+                      <Medal size={22} />
+                    ) : (
+                      <Lock size={22} />
+                    )}
                   </div>
                   <div>
                     <div className="achievement-card-title">
                       <h3>{achievement.name}</h3>
-                      <span>{metricLabels[achievement.metric] || achievement.metric}</span>
+                      <span>
+                        {metricLabels[achievement.metric] || achievement.metric}
+                      </span>
                     </div>
-                    {achievement.description && <p>{achievement.description}</p>}
+                    {achievement.description && (
+                      <p>{achievement.description}</p>
+                    )}
                     <div className="achievement-progress-track">
                       <span style={{ width: `${percent}%` }} />
                     </div>
                     <div className="achievement-card-meta">
-                      <span>{achievement.progress}/{achievement.milestone}</span>
-                      <span>{achievement.unlocked ? formatDate(achievement.unlockedAt) : 'Terkunci'}</span>
+                      <span>
+                        {achievement.progress}/{achievement.milestone}
+                      </span>
+                      <span>
+                        {achievement.unlocked
+                          ? formatDate(achievement.unlockedAt)
+                          : "Terkunci"}
+                      </span>
                       {achievement.unlocked && (
                         <button
                           type="button"
-                          onClick={() => handlePin(achievement.achievementId, achievement.pinned)}
-                          title={achievement.pinned ? 'Di-pin (klik untuk unpin)' : 'Pin achievement ini'}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, opacity: achievement.pinned ? 1 : 0.4 }}
+                          onClick={() =>
+                            handlePin(
+                              achievement.achievementId,
+                              achievement.pinned,
+                            )
+                          }
+                          title={
+                            achievement.pinned
+                              ? "Di-pin (klik untuk unpin)"
+                              : "Pin achievement ini"
+                          }
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: 16,
+                            padding: 0,
+                            opacity: achievement.pinned ? 1 : 0.4,
+                          }}
                         >
                           📌
                         </button>
