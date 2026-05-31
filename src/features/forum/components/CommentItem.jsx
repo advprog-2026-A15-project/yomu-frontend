@@ -49,19 +49,21 @@ const formatAuthorLabel = (comment, user) => {
   const username =
     comment.username ||
     comment.userName ||
-    (rawUserId === user?.id ? user?.username : null) ||
-    rawUserId;
-  const displayName =
-    comment.displayName ||
-    comment.authorName ||
-    (rawUserId === user?.id ? user?.displayName : null) ||
-    username;
+    (rawUserId === user?.id ? user?.username : null);
 
-  return `@${username} - ${displayName}`;
+  if (username) {
+    return `@${username}`;
+  }
+
+  if (rawUserId.length > 8) {
+    return `@user-${rawUserId.slice(0, 8)}`;
+  }
+  return `@${rawUserId}`;
 };
 
 export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
   const { user } = useAuth();
+  const authorUserId = comment.userId || "unknown";
   const displayContent = decodeHtmlEntities(
     comment.commentContent || comment.content || "",
   );
@@ -224,9 +226,17 @@ export const CommentItem = ({ comment, onUpdate, onDelete, onRefresh }) => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span className="comment-author" style={{ fontWeight: "bold" }}>
+            <a
+              className="comment-author"
+              href={`/achievements/users/${encodeURIComponent(authorUserId)}`}
+              style={{
+                fontWeight: "bold",
+                color: "inherit",
+                textDecoration: "none",
+              }}
+            >
               {formatAuthorLabel(comment, user)}
-            </span>
+            </a>
             {comment.userId === user?.id && (
               <span
                 style={{

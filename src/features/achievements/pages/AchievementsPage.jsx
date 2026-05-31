@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -45,7 +45,18 @@ const progressPercent = (progress, target) => {
   return Math.min(100, Math.round((progress / target) * 100));
 };
 
-const fetchDashboard = async (targetUserId) => {
+const fetchDashboard = async (targetUserId, includePrivateData) => {
+  if (!includePrivateData) {
+    const achievementData =
+      await achievementService.listCompletedAchievements(targetUserId);
+    return {
+      achievementData,
+      missionData: [],
+      totalPoints: 0,
+      personalScore: null,
+    };
+  }
+
   const [achievementData, missionData, totalPoints, membership] =
     await Promise.all([
       achievementService.listAchievements(targetUserId),
@@ -63,6 +74,7 @@ const fetchDashboard = async (targetUserId) => {
 
 export const AchievementsPage = () => {
   const { user, isLoading: authLoading } = useAuth();
+  const { profileUserId } = useParams();
   const [achievements, setAchievements] = useState([]);
   const [dailyMissions, setDailyMissions] = useState([]);
   const [totalClaimedPoints, setTotalClaimedPoints] = useState(0);
@@ -72,19 +84,19 @@ export const AchievementsPage = () => {
   const [claimingMissionId, setClaimingMissionId] = useState(null);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [membership, setMembership] = useState(null);
   const userId = user?.id;
+  const targetUserId = profileUserId || userId;
+  const isOwnDashboard = !profileUserId || profileUserId === userId;
 
-  const loadDashboard = async () => {
-    if (!userId) {
+  const loadDashboard = useCallback(async () => {
+    if (!targetUserId) {
       return;
     }
 
     setIsLoading(true);
     setError(null);
     try {
-      const dashboardData = await fetchDashboard(userId);
-      const m = await clanService.getMembership(userId).catch(() => null);
+      const dashboardData = await fetchDashboard(targetUserId, isOwnDashboard);
       setAchievements(dashboardData.achievementData);
       setDailyMissions(dashboardData.missionData);
       setTotalClaimedPoints(dashboardData.totalPoints);
@@ -94,19 +106,18 @@ export const AchievementsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isOwnDashboard, targetUserId]);
 
   useEffect(() => {
     let shouldIgnore = false;
 
     const loadInitialDashboard = async () => {
-      if (!userId) {
+      if (!targetUserId) {
         return;
       }
 
       try {
-        const dashboardData = await fetchDashboard(userId);
-        const m = await clanService.getMembership(userId).catch(() => null);
+        const dashboardData = await fetchDashboard(targetUserId, isOwnDashboard);
         if (!shouldIgnore) {
           setAchievements(dashboardData.achievementData);
           setDailyMissions(dashboardData.missionData);
@@ -130,7 +141,7 @@ export const AchievementsPage = () => {
     return () => {
       shouldIgnore = true;
     };
-  }, [userId]);
+  }, [isOwnDashboard, targetUserId]);
 
   const filteredAchievements = useMemo(() => {
     if (selectedMetric === "ALL") {
@@ -162,7 +173,7 @@ export const AchievementsPage = () => {
   }, [achievements, dailyMissions]);
 
   const handlePin = async (achievementId, currentlyPinned) => {
-    if (!userId) return;
+    if (!userId || !isOwnDashboard) return;
     try {
       await achievementService.pinAchievement(
         achievementId,
@@ -181,7 +192,7 @@ export const AchievementsPage = () => {
   };
 
   const handleClaim = async (missionId) => {
-    if (!userId) {
+    if (!userId || !isOwnDashboard) {
       return;
     }
 
@@ -214,8 +225,12 @@ export const AchievementsPage = () => {
             <ArrowLeft size={18} />
             Beranda
           </Link>
-          <h1>Achievement</h1>
-          <p>{user?.displayName || user?.username || "Pelajar"}</p>
+          <h1>{isOwnDashboard ? "Achievement" : "Achievement Pelajar"}</h1>
+          <p>
+            {isOwnDashboard
+              ? user?.displayName || user?.username || "Pelajar"
+              : targetUserId}
+          </p>
         </div>
         <div className="achievement-actions">
           {user?.role === "ADMIN" && (
@@ -258,30 +273,37 @@ export const AchievementsPage = () => {
           <span>
             {summary.unlockedCount}/{summary.achievementCount}
           </span>
-          <p>Achievement terbuka</p>
+          <p>{isOwnDashboard ? "Achievement terbuka" : "Achievement selesai"}</p>
         </div>
-        <div className="achievement-summary-item">
-          <Target size={22} />
-          <span>
-            {summary.completedMissions}/{summary.missionCount}
-          </span>
-          <p>Daily mission selesai</p>
-        </div>
-        <div className="achievement-summary-item">
-          <Gift size={22} />
-          <span>{summary.claimableMissions}</span>
-          <p>Reward siap klaim</p>
-        </div>
-        <div className="achievement-summary-item achievement-summary-item--score">
-          <Star size={22} />
-          <span>
-            {personalScore !== null ? personalScore : totalClaimedPoints}
-          </span>
-          <p>{personalScore !== null ? "Total skor (clan)" : "Total skor"}</p>
-        </div>
+        {isOwnDashboard && (
+          <>
+            <div className="achievement-summary-item">
+              <Target size={22} />
+              <span>
+                {summary.completedMissions}/{summary.missionCount}
+              </span>
+              <p>Daily mission selesai</p>
+            </div>
+            <div className="achievement-summary-item">
+              <Gift size={22} />
+              <span>{summary.claimableMissions}</span>
+              <p>Reward siap klaim</p>
+            </div>
+            <div className="achievement-summary-item achievement-summary-item--score">
+              <Star size={22} />
+              <span>
+                {personalScore !== null ? personalScore : totalClaimedPoints}
+              </span>
+              <p>
+                {personalScore !== null ? "Total skor (clan)" : "Total skor"}
+              </p>
+            </div>
+          </>
+        )}
       </section>
 
-      <section className="achievement-section">
+      {isOwnDashboard && (
+        <section className="achievement-section">
         <div
           className="achievement-section-heading"
           style={{
@@ -370,11 +392,12 @@ export const AchievementsPage = () => {
             })}
           </div>
         )}
-      </section>
+        </section>
+      )}
 
       <section className="achievement-section">
         <div className="achievement-section-heading">
-          <h2>Daftar Achievement</h2>
+          <h2>{isOwnDashboard ? "Daftar Achievement" : "Achievement Selesai"}</h2>
           <div className="achievement-filter" aria-label="Filter achievement">
             {[
               "ALL",
@@ -451,7 +474,7 @@ export const AchievementsPage = () => {
                           ? formatDate(achievement.unlockedAt)
                           : "Terkunci"}
                       </span>
-                      {achievement.unlocked && (
+                      {achievement.unlocked && isOwnDashboard && (
                         <button
                           type="button"
                           onClick={() =>

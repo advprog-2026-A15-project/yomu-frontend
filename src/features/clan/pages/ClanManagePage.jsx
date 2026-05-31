@@ -155,7 +155,12 @@ export const ClanManagePage = () => {
               {pendingMembers.map(member => (
                 <tr key={member.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontSize: '13px' }}>
-                    {member.userId}
+                    <Link
+                      to={`/achievements/users/${encodeURIComponent(member.userId)}`}
+                      style={{ color: 'var(--secondary)', textDecoration: 'none', fontFamily: 'inherit' }}
+                    >
+                      {member.userId}
+                    </Link>
                   </td>
                   <td style={{ padding: '14px 16px', color: 'var(--text-light)', fontSize: '14px' }}>
                     {formatDate(member.joinedAt)}
@@ -208,7 +213,12 @@ export const ClanManagePage = () => {
               {acceptedMembers.map(member => (
                 <tr key={member.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontSize: '13px' }}>
-                    {member.userId}
+                    <Link
+                      to={`/achievements/users/${encodeURIComponent(member.userId)}`}
+                      style={{ color: 'var(--secondary)', textDecoration: 'none', fontFamily: 'inherit' }}
+                    >
+                      {member.userId}
+                    </Link>
                     {member.userId === clan?.leaderId && (
                       <span style={{ marginLeft: '8px', fontSize: '11px', color: 'var(--secondary)', fontWeight: 'bold', fontFamily: 'inherit' }}>
                         KETUA
