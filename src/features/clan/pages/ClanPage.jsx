@@ -139,8 +139,8 @@ export const ClanPage = () => {
       {membership && myClan && (
         <div className="card" style={{
           marginBottom: '24px',
-          backgroundColor: membership.status === 'ACCEPTED' ? '#f0fff4' : '#fffbeb',
           borderColor: membership.status === 'ACCEPTED' ? '#58cc02' : '#f59e0b',
+          borderWidth: 2, borderStyle: 'solid',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div>
@@ -173,7 +173,7 @@ export const ClanPage = () => {
       )}
 
       {showCreate && (
-        <form onSubmit={handleCreateClan} className="card" style={{ marginBottom: '32px', backgroundColor: '#f0f9ff', borderColor: 'var(--secondary)' }}>
+        <form onSubmit={handleCreateClan} className="card" style={{ marginBottom: '32px', borderColor: 'var(--secondary)', borderWidth: 2, borderStyle: 'solid' }}>
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Buat Clan Baru</h2>
           <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
             <div style={{ flex: 1 }}>

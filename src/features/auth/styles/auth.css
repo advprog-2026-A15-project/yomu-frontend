@@ -15,17 +15,15 @@
   --auth-success: #22c55e;
 }
 
-/* Light mode overrides if applied at higher level, but keeping it dark by default for premium feel */
-@media (prefers-color-scheme: light) {
-  :root {
-    --auth-bg-color: #f8fafc;
-    --auth-surface: #ffffff;
-    --auth-surface-border: #e2e8f0;
-    --auth-text-main: #0f172a;
-    --auth-text-muted: #64748b;
-    --auth-input-bg: #f1f5f9;
-    --auth-input-border: #cbd5e1;
-  }
+/* Light mode: app uses :root.dark for dark, so :root:not(.dark) = light */
+:root:not(.dark) {
+  --auth-bg-color: #f8fafc;
+  --auth-surface: #ffffff;
+  --auth-surface-border: #e2e8f0;
+  --auth-text-main: #0f172a;
+  --auth-text-muted: #64748b;
+  --auth-input-bg: #f1f5f9;
+  --auth-input-border: #cbd5e1;
 }
 
 .auth-container {

@@ -134,7 +134,7 @@ export const LearningAdminPage = () => {
       )}
 
       {/* Form Buat/Edit Bacaan */}
-      <form onSubmit={handleSaveBacaan} className="card" style={{ marginBottom: 32, backgroundColor: editingId ? '#fffbeb' : '#f0f9ff', borderColor: editingId ? '#f59e0b' : 'var(--secondary)' }}>
+      <form onSubmit={handleSaveBacaan} className="card" style={{ marginBottom: 32, borderColor: editingId ? '#f59e0b' : 'var(--secondary)', borderWidth: 2, borderStyle: 'solid' }}>
         <h2 style={{ marginTop: 0, marginBottom: 16 }}>{editingId ? 'Edit Bacaan' : 'Buat Bacaan Baru'}</h2>
         <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
           <div style={{ flex: 2 }}>
@@ -143,7 +143,7 @@ export const LearningAdminPage = () => {
           </div>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 6 }}>Kategori</label>
-            <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '2px solid var(--border-color)' }}>
+            <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '2px solid var(--border-color)', backgroundColor: 'var(--bg-page)', color: 'var(--text-main)' }}>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
@@ -204,7 +204,7 @@ export const LearningAdminPage = () => {
                   ))}
 
                   {/* Form Tambah Soal */}
-                  <form onSubmit={(e) => handleAddQuestion(e, b.id)} style={{ marginTop: 16, backgroundColor: '#f0fff4', borderRadius: 8, padding: 16, border: '1px solid var(--primary)' }}>
+                  <form onSubmit={(e) => handleAddQuestion(e, b.id)} style={{ marginTop: 16, backgroundColor: 'var(--bg-page)', borderRadius: 8, padding: 16, border: '1px solid var(--primary)' }}>
                     <h4 style={{ margin: '0 0 12px 0' }}>Tambah Soal Baru</h4>
                     <input
                       value={questionForm[b.id]?.questionText || ''}
@@ -227,7 +227,7 @@ export const LearningAdminPage = () => {
                       <select
                         value={questionForm[b.id]?.correctOption || 'A'}
                         onChange={(e) => setQuestionForm((prev) => ({ ...prev, [b.id]: { ...prev[b.id], correctOption: e.target.value } }))}
-                        style={{ padding: '6px 10px', borderRadius: 8, border: '2px solid var(--border-color)' }}
+                        style={{ padding: '6px 10px', borderRadius: 8, border: '2px solid var(--border-color)', backgroundColor: 'var(--bg-page)', color: 'var(--text-main)' }}
                       >
                         {['A', 'B', 'C', 'D'].map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
