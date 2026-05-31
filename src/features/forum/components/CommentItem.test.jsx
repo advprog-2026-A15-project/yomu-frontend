@@ -64,8 +64,16 @@ describe("CommentItem", () => {
   it("should render comment content and author", () => {
     renderWithToast(<CommentItem comment={mockComment} />);
 
-    expect(screen.getByText("@user1 - User Satu")).toBeInTheDocument();
+    expect(screen.getByText("@user1")).toBeInTheDocument();
     expect(screen.getByText("Test comment content")).toBeInTheDocument();
+  });
+
+  it("should render username from comment payload", () => {
+    renderWithToast(
+      <CommentItem comment={{ ...mockComment, userId: "user2", username: "tirta.rendy" }} />,
+    );
+
+    expect(screen.getByText("@tirta.rendy")).toBeInTheDocument();
   });
 
   it("should render reaction buttons with initial counts", () => {
