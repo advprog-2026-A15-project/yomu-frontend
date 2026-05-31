@@ -35,6 +35,10 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route
+              path="/achievements/users/:profileUserId"
+              element={<AchievementsPage />}
+            />
+            <Route
               path="/achievements/admin"
               element={<AchievementAdminPage />}
             />

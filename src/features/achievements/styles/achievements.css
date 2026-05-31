@@ -68,7 +68,9 @@
 .achievement-back-link,
 .achievement-icon-button,
 .achievement-claim-button,
-.achievement-submit-button {
+.achievement-submit-button,
+.achievement-secondary-button,
+.achievement-danger-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -103,13 +105,17 @@
 
 .achievement-icon-button:hover:not(:disabled),
 .achievement-submit-button:hover:not(:disabled),
-.achievement-claim-button:hover:not(:disabled) {
+.achievement-claim-button:hover:not(:disabled),
+.achievement-secondary-button:hover:not(:disabled),
+.achievement-danger-button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
 .achievement-icon-button:disabled,
 .achievement-claim-button:disabled,
-.achievement-submit-button:disabled {
+.achievement-submit-button:disabled,
+.achievement-secondary-button:disabled,
+.achievement-danger-button:disabled {
   opacity: 0.58;
   cursor: not-allowed;
 }
@@ -458,6 +464,65 @@
   margin-top: 4px;
 }
 
+.achievement-form-actions,
+.achievement-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.achievement-form-actions {
+  justify-content: flex-end;
+}
+
+.achievement-secondary-button {
+  border: 1px solid var(--ach-border);
+  background: var(--ach-surface);
+  color: var(--ach-text);
+  padding: 0 14px;
+  min-height: 44px;
+}
+
+.achievement-danger-button {
+  border: 1px solid rgba(194, 65, 12, 0.22);
+  background: var(--ach-red-soft);
+  color: var(--ach-red);
+  padding: 0 14px;
+}
+
+.achievement-admin-panel--wide {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.achievement-admin-list {
+  display: grid;
+  gap: 0;
+}
+
+.achievement-admin-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--ach-border);
+}
+
+.achievement-admin-list-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.achievement-admin-list-item:last-child {
+  padding-bottom: 0;
+}
+
+.achievement-admin-list-content {
+  min-width: 0;
+}
+
 .achievement-spin {
   animation: achievement-spin 1s linear infinite;
 }
@@ -499,6 +564,14 @@
   .achievement-claim-button {
     grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .achievement-admin-list-item {
+    grid-template-columns: 1fr;
+  }
+
+  .achievement-list-actions {
+    justify-content: flex-start;
   }
 
   .achievement-filter {

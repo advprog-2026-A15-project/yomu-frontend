@@ -43,6 +43,17 @@ export const achievementService = {
     return readJsonOrThrow(response, "Gagal memuat achievement.");
   },
 
+  listCompletedAchievements: async (userId) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/users/${encodeURIComponent(userId)}/completed`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+
+    return readJsonOrThrow(response, "Gagal memuat achievement pelajar.");
+  },
+
   listDailyMissions: async (userId) => {
     const response = await fetch(
       `${ACHIEVEMENTS_API_URL}/daily-missions/active?userId=${encodeURIComponent(userId)}`,
@@ -109,5 +120,43 @@ export const achievementService = {
     );
 
     return readJsonOrThrow(response, "Gagal membuat daily mission.");
+  },
+
+  listAdminDailyMissions: async () => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/admin/daily-missions`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+
+    return readJsonOrThrow(response, "Gagal memuat daftar daily mission.");
+  },
+
+  updateDailyMission: async (missionId, payload) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/admin/daily-missions/${encodeURIComponent(missionId)}`,
+      {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      },
+    );
+
+    return readJsonOrThrow(response, "Gagal mengubah daily mission.");
+  },
+
+  deleteDailyMission: async (missionId) => {
+    const response = await fetch(
+      `${ACHIEVEMENTS_API_URL}/admin/daily-missions/${encodeURIComponent(missionId)}`,
+      {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      },
+    );
+
+    if (response.ok) return true;
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal menghapus daily mission.");
   },
 };
