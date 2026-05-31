@@ -16,7 +16,12 @@ const decodeHtmlEntities = (value = "") => {
 const getReactionScore = (comment) => {
   const upvotes = comment.upvotes ?? 0;
   const downvotes = comment.downvotes ?? 0;
-  return upvotes - downvotes;
+  const thumbsUp = comment.reactionThumbsUp ?? comment.thumbsUp ?? 0;
+  const heart = comment.reactionHeart ?? comment.heart ?? 0;
+  const laugh = comment.reactionLaugh ?? comment.laugh ?? 0;
+  const surprise = comment.reactionSurprise ?? comment.surprise ?? 0;
+  const sad = comment.reactionSad ?? comment.sad ?? 0;
+  return upvotes - downvotes + thumbsUp + heart + laugh + surprise - sad;
 };
 
 // Sort comments by reaction score (positive reactions - negative reactions)
