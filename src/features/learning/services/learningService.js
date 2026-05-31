@@ -3,11 +3,12 @@ import { API_URL, getAuthHeaders, readJsonOrThrow } from "../../../api/axios";
 const LEARNING_API_URL = `${API_URL}/learning`;
 
 export const learningService = {
-  listBacaan: async (category) => {
-    const url = category
-      ? `${LEARNING_API_URL}/bacaan?category=${encodeURIComponent(category)}`
-      : `${LEARNING_API_URL}/bacaan`;
-    const res = await fetch(url, { headers: getAuthHeaders() });
+  listBacaan: async (category, search) => {
+    const params = new URLSearchParams();
+    if (category) params.append('category', category);
+    if (search) params.append('search', search);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${LEARNING_API_URL}/bacaan${query}`, { headers: getAuthHeaders() });
     return readJsonOrThrow(res, "Gagal memuat daftar bacaan.");
   },
 
