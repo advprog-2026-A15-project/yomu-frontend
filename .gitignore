@@ -18,20 +18,6 @@ dist-ssr
 .idea
 .DS_Store
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Environment
-.env
-.env.*
-!.env.example
-
-# Caches
-.eslintcache
-.cache/
-
 # Logs
 log/**
 
