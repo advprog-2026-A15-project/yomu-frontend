@@ -3,7 +3,6 @@ import "./toast.css";
 
 const ToastContext = createContext(null);
 
-// eslint-disable-next-line react/prop-types
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
