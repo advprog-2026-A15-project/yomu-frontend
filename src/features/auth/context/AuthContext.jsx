@@ -5,7 +5,9 @@ import { AuthContext } from './AuthContextValue';
 const getStoredUser = () => {
   try {
     const storedUser = localStorage.getItem('yomu_user');
-    return storedUser ? JSON.parse(storedUser) : null;
+    if (!storedUser) return null;
+    const decoded = storedUser.startsWith('%7B') ? decodeURIComponent(storedUser) : storedUser;
+    return JSON.parse(decoded);
   } catch {
     localStorage.removeItem('yomu_user');
     return null;
@@ -19,14 +21,14 @@ export const AuthProvider = ({ children }) => {
 
   const sanitizeUserData = (data) => {
     if (!data) return null;
-    return JSON.parse(JSON.stringify(data).replace(/[<>]/g, ''));
+    return encodeURIComponent(JSON.stringify(data));
   };
 
   // Sync user state to localStorage
   const saveSession = (userData) => {
     setUser(userData);
-    const cleanData = sanitizeUserData(userData);
-    localStorage.setItem('yomu_user', JSON.stringify(cleanData));
+    const cleanDataString = sanitizeUserData(userData);
+    localStorage.setItem('yomu_user', cleanDataString);
   };
 
   const clearSession = () => {
