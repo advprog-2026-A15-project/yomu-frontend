@@ -2,6 +2,14 @@ import { API_URL, getAuthHeaders, readJsonOrThrow } from "../../../api/axios";
 
 const CLAN_API_URL = `${API_URL}/clan`;
 
+const validateId = (id) => {
+  const strId = String(id);
+  if (!/^[a-zA-Z0-9-_]+$/.test(strId)) {
+    throw new Error('Invalid format');
+  }
+  return strId;
+};
+
 export const clanService = {
   createClan: async (data) => {
     const res = await fetch(CLAN_API_URL, {
@@ -13,22 +21,27 @@ export const clanService = {
   },
 
   getClan: async (id) => {
-    const res = await fetch(`${CLAN_API_URL}/${id}`, {
+    const safeId = validateId(id);
+    const res = await fetch(`${CLAN_API_URL}/${safeId}`, {
       headers: getAuthHeaders(),
     });
     return readJsonOrThrow(res, "Gagal memuat clan.");
   },
 
   getLeaderboard: async (tier) => {
-    const url = tier
-      ? `${CLAN_API_URL}/leaderboard?tier=${tier}`
-      : `${CLAN_API_URL}/leaderboard`;
+    let url = `${CLAN_API_URL}/leaderboard`;
+    if (tier) {
+      const safeTier = validateId(tier);
+      url += `?tier=${safeTier}`;
+    }
     const res = await fetch(url, { headers: getAuthHeaders() });
     return readJsonOrThrow(res, "Gagal memuat leaderboard.");
   },
 
   joinClan: async (clanId, userId) => {
-    const res = await fetch(`${CLAN_API_URL}/${clanId}/join?userId=${userId}`, {
+    const safeClanId = validateId(clanId);
+    const safeUserId = validateId(userId);
+    const res = await fetch(`${CLAN_API_URL}/${safeClanId}/join?userId=${safeUserId}`, {
       method: "POST",
       headers: getAuthHeaders(),
     });
@@ -37,14 +50,16 @@ export const clanService = {
   },
 
   getMembers: async (clanId) => {
-    const res = await fetch(`${CLAN_API_URL}/${clanId}/members`, {
+    const safeClanId = validateId(clanId);
+    const res = await fetch(`${CLAN_API_URL}/${safeClanId}/members`, {
       headers: getAuthHeaders(),
     });
     return readJsonOrThrow(res, "Gagal memuat anggota.");
   },
 
   getMembership: async (userId) => {
-    const res = await fetch(`${CLAN_API_URL}/me?userId=${userId}`, {
+    const safeUserId = validateId(userId);
+    const res = await fetch(`${CLAN_API_URL}/me?userId=${safeUserId}`, {
       headers: getAuthHeaders(),
     });
     if (res.status === 204) return null;
@@ -52,14 +67,17 @@ export const clanService = {
   },
 
   getPendingMembers: async (clanId) => {
-    const res = await fetch(`${CLAN_API_URL}/${clanId}/members/pending`, {
+    const safeClanId = validateId(clanId);
+    const res = await fetch(`${CLAN_API_URL}/${safeClanId}/members/pending`, {
       headers: getAuthHeaders(),
     });
     return readJsonOrThrow(res, "Gagal memuat anggota pending.");
   },
 
   acceptMember: async (clanId, memberId) => {
-    const res = await fetch(`${CLAN_API_URL}/${clanId}/members/${memberId}/accept`, {
+    const safeClanId = validateId(clanId);
+    const safeMemberId = validateId(memberId);
+    const res = await fetch(`${CLAN_API_URL}/${safeClanId}/members/${safeMemberId}/accept`, {
       method: "POST",
       headers: getAuthHeaders(),
     });
@@ -68,7 +86,9 @@ export const clanService = {
   },
 
   rejectMember: async (clanId, memberId) => {
-    const res = await fetch(`${CLAN_API_URL}/${clanId}/members/${memberId}/reject`, {
+    const safeClanId = validateId(clanId);
+    const safeMemberId = validateId(memberId);
+    const res = await fetch(`${CLAN_API_URL}/${safeClanId}/members/${safeMemberId}/reject`, {
       method: "POST",
       headers: getAuthHeaders(),
     });
@@ -77,7 +97,8 @@ export const clanService = {
   },
 
   deleteClan: async (clanId) => {
-    const res = await fetch(`${CLAN_API_URL}/${clanId}`, {
+    const safeClanId = validateId(clanId);
+    const res = await fetch(`${CLAN_API_URL}/${safeClanId}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });

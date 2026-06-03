@@ -17,10 +17,16 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const sanitizeUserData = (data) => {
+    if (!data) return null;
+    return JSON.parse(JSON.stringify(data).replace(/[<>]/g, ''));
+  };
+
   // Sync user state to localStorage
   const saveSession = (userData) => {
     setUser(userData);
-    localStorage.setItem('yomu_user', JSON.stringify(userData));
+    const cleanData = sanitizeUserData(userData);
+    localStorage.setItem('yomu_user', JSON.stringify(cleanData));
   };
 
   const clearSession = () => {
