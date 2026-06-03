@@ -3,14 +3,19 @@ import "./toast.css";
 
 const ToastContext = createContext(null);
 
+// eslint-disable-next-line react/prop-types
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+
+  const removeToast = useCallback((id) => {
+    setToasts((t) => t.filter((x) => x.id !== id));
+  }, []);
 
   const toast = useCallback((message, type = "info", ttl = 3500) => {
     const id = Math.random().toString(36).slice(2, 9);
     setToasts((t) => [...t, { id, message, type }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), ttl);
-  }, []);
+    setTimeout(() => removeToast(id), ttl);
+  }, [removeToast]);
 
   return (
     <ToastContext.Provider value={{ toast }}>

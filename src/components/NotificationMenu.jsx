@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bell, Check, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import { useNotificationList } from "../features/notification/NotificationContext";
 
 export const NotificationMenu = () => {
@@ -108,17 +108,14 @@ export const NotificationMenu = () => {
               </div>
             ) : (
               notifications.map((notif) => (
-                <div
+                <button
                   key={notif.id}
-                  role="button"
-                  tabIndex={0}
                   onClick={() => markAsRead(notif.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      markAsRead(notif.id);
-                    }
-                  }}
                   style={{
+                    border: "none",
+                    textAlign: "left",
+                    fontFamily: "inherit",
+                    width: "100%",
                     padding: "12px 16px",
                     borderBottom: "1px solid var(--border-color)",
                     background: notif.read ? "var(--bg-main)" : "var(--bg-page)",
@@ -147,7 +144,7 @@ export const NotificationMenu = () => {
                       {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
