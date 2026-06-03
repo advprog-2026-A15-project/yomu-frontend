@@ -2,6 +2,14 @@ import { API_URL, getAuthHeaders, readJsonOrThrow } from "../../../api/axios";
 
 const LEARNING_API_URL = `${API_URL}/learning`;
 
+const validateId = (id) => {
+  const strId = String(id);
+  if (!/^[a-zA-Z0-9-_]+$/.test(strId)) {
+    throw new Error('Invalid format');
+  }
+  return strId;
+};
+
 export const learningService = {
   listBacaan: async (category, search) => {
     const params = new URLSearchParams();
@@ -13,7 +21,7 @@ export const learningService = {
   },
 
   getBacaan: async (id) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${validateId(id)}`, {
       headers: getAuthHeaders(),
     });
     return readJsonOrThrow(res, "Gagal memuat bacaan.");
@@ -29,7 +37,7 @@ export const learningService = {
   },
 
   updateBacaan: async (id, data) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${validateId(id)}`, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -38,7 +46,7 @@ export const learningService = {
   },
 
   deleteBacaan: async (id) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${validateId(id)}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
@@ -48,7 +56,7 @@ export const learningService = {
 
   getQuestions: async (bacaanId) => {
     const res = await fetch(
-      `${LEARNING_API_URL}/bacaan/${encodeURIComponent(bacaanId)}/questions`,
+      `${LEARNING_API_URL}/bacaan/${validateId(bacaanId)}/questions`,
       {
         headers: getAuthHeaders(),
       },
@@ -66,7 +74,7 @@ export const learningService = {
   },
 
   deleteQuestion: async (questionId) => {
-    const res = await fetch(`${LEARNING_API_URL}/questions/${encodeURIComponent(questionId)}`, {
+    const res = await fetch(`${LEARNING_API_URL}/questions/${validateId(questionId)}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
@@ -75,7 +83,7 @@ export const learningService = {
   },
 
   submitQuiz: async (bacaanId, data) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(bacaanId)}/quiz`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${validateId(bacaanId)}/quiz`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -85,7 +93,7 @@ export const learningService = {
 
   checkQuizStatus: async (bacaanId, userId) => {
     const res = await fetch(
-      `${LEARNING_API_URL}/bacaan/${encodeURIComponent(bacaanId)}/quiz/status?userId=${encodeURIComponent(userId)}`,
+      `${LEARNING_API_URL}/bacaan/${validateId(bacaanId)}/quiz/status?userId=${validateId(userId)}`,
       { headers: getAuthHeaders() },
     );
     return readJsonOrThrow(res, "Gagal mengecek status kuis.");
