@@ -13,7 +13,7 @@ export const learningService = {
   },
 
   getBacaan: async (id) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${id}`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(id)}`, {
       headers: getAuthHeaders(),
     });
     return readJsonOrThrow(res, "Gagal memuat bacaan.");
@@ -29,7 +29,7 @@ export const learningService = {
   },
 
   updateBacaan: async (id, data) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${id}`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(id)}`, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -38,7 +38,7 @@ export const learningService = {
   },
 
   deleteBacaan: async (id) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${id}`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(id)}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
@@ -48,7 +48,7 @@ export const learningService = {
 
   getQuestions: async (bacaanId) => {
     const res = await fetch(
-      `${LEARNING_API_URL}/bacaan/${bacaanId}/questions`,
+      `${LEARNING_API_URL}/bacaan/${encodeURIComponent(bacaanId)}/questions`,
       {
         headers: getAuthHeaders(),
       },
@@ -66,7 +66,7 @@ export const learningService = {
   },
 
   deleteQuestion: async (questionId) => {
-    const res = await fetch(`${LEARNING_API_URL}/questions/${questionId}`, {
+    const res = await fetch(`${LEARNING_API_URL}/questions/${encodeURIComponent(questionId)}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
@@ -75,7 +75,7 @@ export const learningService = {
   },
 
   submitQuiz: async (bacaanId, data) => {
-    const res = await fetch(`${LEARNING_API_URL}/bacaan/${bacaanId}/quiz`, {
+    const res = await fetch(`${LEARNING_API_URL}/bacaan/${encodeURIComponent(bacaanId)}/quiz`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -85,7 +85,7 @@ export const learningService = {
 
   checkQuizStatus: async (bacaanId, userId) => {
     const res = await fetch(
-      `${LEARNING_API_URL}/bacaan/${bacaanId}/quiz/status?userId=${userId}`,
+      `${LEARNING_API_URL}/bacaan/${encodeURIComponent(bacaanId)}/quiz/status?userId=${encodeURIComponent(userId)}`,
       { headers: getAuthHeaders() },
     );
     return readJsonOrThrow(res, "Gagal mengecek status kuis.");

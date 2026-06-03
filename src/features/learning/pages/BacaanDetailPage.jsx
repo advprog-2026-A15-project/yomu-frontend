@@ -129,6 +129,28 @@ export const BacaanDetailPage = () => {
     }
   };
 
+  const sortedComments =
+    commentSort === "reactions"
+      ? sortCommentsByReactionScore(comments)
+      : sortCommentsByNewest(comments);
+
+  const totalQuestions = questions.length;
+  const scorePct = totalQuestions > 0 && score !== null ? (score / totalQuestions) * 100 : null;
+  const isPerfect = scorePct === 100;
+  const isGood = scorePct !== null && scorePct >= 60;
+  const doneEmoji = isPerfect ? "🎉" : isGood ? "😊" : scorePct !== null ? "📚" : "✅";
+  const doneTitle = isPerfect ? "Sempurna!" : isGood ? "Bagus!" : scorePct !== null ? "Terus Berlatih!" : "Selesai!";
+  const doneSubtitle = scorePct !== null && scorePct < 60 
+    ? "Jangan menyerah! Baca ulang materinya dan coba lagi di bacaan lain." 
+    : "Kamu telah menyelesaikan modul bacaan ini.";
+  const doneScoreColor = scorePct === null 
+    ? "var(--primary)" 
+    : isPerfect 
+      ? "var(--primary)" 
+      : isGood 
+        ? "var(--primary)" 
+        : "var(--danger)";
+
   if (!bacaan)
     return (
       <div
@@ -301,22 +323,16 @@ export const BacaanDetailPage = () => {
           {comments.length === 0 && (
             <div className="card">Belum ada komentar.</div>
           )}
-          {(() => {
-            const sortedComments =
-              commentSort === "reactions"
-                ? sortCommentsByReactionScore(comments)
-                : sortCommentsByNewest(comments);
-            return sortedComments.map((c) => (
-              <CommentItem
-                key={c.commentId || c.id}
-                comment={c}
-                currentUserId={user?.id}
-                onUpdate={handleCommentUpdate}
-                onDelete={handleCommentDelete}
-                onRefresh={loadComments}
-              />
-            ));
-          })()}
+          {sortedComments.map((c) => (
+            <CommentItem
+              key={c.commentId || c.id}
+              comment={c}
+              currentUserId={user?.id}
+              onUpdate={handleCommentUpdate}
+              onDelete={handleCommentDelete}
+              onRefresh={loadComments}
+            />
+          ))}
         </div>
       </div>
 
@@ -399,98 +415,33 @@ export const BacaanDetailPage = () => {
         </div>
       )}
 
-      {mode === "DONE" &&
-        (() => {
-          const total = questions.length;
-          const pct =
-            total > 0 && score !== null ? (score / total) * 100 : null;
-          const isPerfect = pct === 100;
-          const isGood = pct !== null && pct >= 60;
-          const emoji = isPerfect
-            ? "🎉"
-            : isGood
-              ? "😊"
-              : pct !== null
-                ? "📚"
-                : "✅";
-          const title = isPerfect
-            ? "Sempurna!"
-            : isGood
-              ? "Bagus!"
-              : pct !== null
-                ? "Terus Berlatih!"
-                : "Selesai!";
-          const subtitle =
-            pct !== null && pct < 60
-              ? "Jangan menyerah! Baca ulang materinya dan coba lagi di bacaan lain."
-              : "Kamu telah menyelesaikan modul bacaan ini.";
-          const scoreColor =
-            pct === null
-              ? "var(--primary)"
-              : isPerfect
-                ? "var(--primary)"
-                : isGood
-                  ? "var(--primary)"
-                  : "var(--danger)";
+      {mode === "DONE" && (
+        <div className="card" style={{ textAlign: "center", padding: "48px 24px" }}>
+          <div style={{ fontSize: "64px", marginBottom: "16px" }}>
+            {doneEmoji}
+          </div>
+          <h1 className="page-title" style={{ color: doneScoreColor }}>
+            {doneTitle}
+          </h1>
+          <p className="page-subtitle">{doneSubtitle}</p>
 
-          return (
-            <div
-              className="card"
-              style={{ textAlign: "center", padding: "48px 24px" }}
-            >
-              <div style={{ fontSize: "64px", marginBottom: "16px" }}>
-                {emoji}
-              </div>
-              <h1 className="page-title" style={{ color: scoreColor }}>
-                {title}
-              </h1>
-              <p className="page-subtitle">{subtitle}</p>
-
-              {score !== null && total > 0 && (
-                <div
-                  style={{
-                    margin: "24px 0",
-                    fontSize: "24px",
-                    fontWeight: "bold",
-                    color: scoreColor,
-                  }}
-                >
-                  Skor Kamu: {score} / {total} Benar
-                </div>
-              )}
-
-              {pct !== null && (
-                <div
-                  style={{
-                    margin: "0 auto 24px",
-                    width: "200px",
-                    height: "8px",
-                    backgroundColor: "var(--border-light)",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${pct}%`,
-                      height: "100%",
-                      backgroundColor: scoreColor,
-                      borderRadius: "4px",
-                      transition: "width 0.5s ease",
-                    }}
-                  />
-                </div>
-              )}
-
-              <button
-                onClick={() => navigate("/learning")}
-                className="btn btn-secondary"
-              >
-                KEMBALI KE MENU BELAJAR
-              </button>
+          {score !== null && totalQuestions > 0 && (
+            <div style={{ margin: "24px 0", fontSize: "24px", fontWeight: "bold", color: doneScoreColor }}>
+              Skor Kamu: {score} / {totalQuestions} Benar
             </div>
-          );
-        })()}
+          )}
+
+          {scorePct !== null && (
+            <div style={{ margin: "0 auto 24px", width: "200px", height: "8px", backgroundColor: "var(--border-light)", borderRadius: "4px", overflow: "hidden" }}>
+              <div style={{ width: `${scorePct}%`, height: "100%", backgroundColor: doneScoreColor, borderRadius: "4px", transition: "width 0.5s ease" }} />
+            </div>
+          )}
+
+          <button onClick={() => navigate("/learning")} className="btn btn-secondary">
+            KEMBALI KE MENU BELAJAR
+          </button>
+        </div>
+      )}
     </div>
   );
 };

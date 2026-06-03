@@ -110,7 +110,14 @@ export const NotificationMenu = () => {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => markAsRead(notif.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      markAsRead(notif.id);
+                    }
+                  }}
                   style={{
                     padding: "12px 16px",
                     borderBottom: "1px solid var(--border-color)",
