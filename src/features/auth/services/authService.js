@@ -2,20 +2,6 @@
  * authService.js
  *
  * Implementation of Auth Service connecting to the Spring Boot backend.
- */
-
-import { API_URL } from "../../../api/axios";
-
-const getAuthHeaders = () => {
-  const userStr = localStorage.getItem("yomu_user");
-  if (userStr) {
-    const user = JSON.parse(userStr);
-    if (user.token) {
-      return {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`,
-      };
-    }
   }
   return {
     "Content-Type": "application/json",

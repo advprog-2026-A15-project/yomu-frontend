@@ -11,7 +11,8 @@ export const getAuthHeaders = () => {
   const baseHeaders = { "Content-Type": "application/json" };
   if (!storedUser) return baseHeaders;
   try {
-    const user = JSON.parse(storedUser);
+    const decoded = storedUser.startsWith('%7B') ? decodeURIComponent(storedUser) : storedUser;
+    const user = JSON.parse(decoded);
     return user.token
       ? { ...baseHeaders, Authorization: `Bearer ${user.token}` }
       : baseHeaders;

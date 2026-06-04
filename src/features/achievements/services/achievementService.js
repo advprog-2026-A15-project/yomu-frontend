@@ -6,20 +6,6 @@ const getAuthHeaders = () => {
   const storedUser = localStorage.getItem("yomu_user");
   const baseHeaders = {
     "Content-Type": "application/json",
-  };
-
-  if (!storedUser) {
-    return baseHeaders;
-  }
-
-  try {
-    const user = JSON.parse(storedUser);
-    return user.token
-      ? { ...baseHeaders, Authorization: `Bearer ${user.token}` }
-      : baseHeaders;
-  } catch {
-    return baseHeaders;
-  }
 };
 
 const readJsonOrThrow = async (response, fallbackMessage) => {
